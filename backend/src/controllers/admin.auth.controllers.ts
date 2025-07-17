@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import supabase from "../config/db";
 import { validatePassword } from "../util/password.validator";
 import { setTokens } from "../util/set.token";
-import jwt from "jsonwebtoken";
+import { AuthenticatedRequest } from "../types/express";
 
 export const Signup = async (
   req: Request,
@@ -200,24 +200,11 @@ export const Logout = async (
 };
 
 export const CheckAuth = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
-    const token = req.cookies.jwt;
-
-    if (!token) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized - No Token Provided" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    if (!decoded) {
-      return res.status(401).json({ message: "Unauthorized - Invalid Token" });
-    }
-
-    return res.status(200).json({ user: decoded });
+    return res.status(200).json(req.user);
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("checkAuth error:", error.message);
