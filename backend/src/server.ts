@@ -1,7 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-// import AuthRoutes from "./routes/auth.routes";
+import AdminAuthRoutes from "./routes/admin.auth.routes";
 
 const app: Application = express();
 
@@ -14,6 +14,6 @@ app.use(
 
 app.use(express.json(), cookieParser());
 
-// app.use("/api/auth/", AuthRoutes);
+app.use("/api/admin-auth/", AdminAuthRoutes);
 
 export default app;
