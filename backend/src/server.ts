@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import AdminAuthRoutes from "./routes/admin.auth.routes";
 import TreatmentRoutes from "./routes/treatments.routes";
+import SalonSchedule from "./routes/salon.chedule.routes";
 
 const app: Application = express();
 
@@ -17,5 +18,6 @@ app.use(express.json(), cookieParser());
 
 app.use("/api/admin-auth/", AdminAuthRoutes);
 app.use("/api/treatments/", TreatmentRoutes);
+app.use("/api/schedule", SalonSchedule);
 
 export default app;
