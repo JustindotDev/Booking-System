@@ -40,6 +40,6 @@ export const ProtectRoute = async (
     next();
   } catch (error: unknown) {
     console.log("Error in ProtectRoute Middleware", error);
-    res.status(500).json({ message: (error as Error).message });
+    return res.status(500).json({ message: (error as Error).message });
   }
 };
