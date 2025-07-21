@@ -130,10 +130,7 @@ export const DeleteTreatments = async (
   try {
     const { id } = req.params;
 
-    const { data, error } = await supabase
-      .from("treatments")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("treatments").delete().eq("id", id);
 
     if (error) return res.status(500).json({ message: error.message });
 
