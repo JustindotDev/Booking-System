@@ -39,7 +39,9 @@ export const Signup = async (
 
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
-      return res.status(400).json({ message: passwordValidation.message });
+      return res
+        .status(400)
+        .json({ passwordError: passwordValidation.message });
     }
 
     const { data: authData, error: signupError } = await supabase.auth.signUp({
