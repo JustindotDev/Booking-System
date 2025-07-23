@@ -47,8 +47,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
   checkAuth: async () => {
     set({ isCheckingAuth: true });
     try {
-      const res = await axiosInstance.post("/admin-auth/check");
-      set({ authUser: res.data.user });
+      const res = await axiosInstance.get("/admin-auth/check");
+      set({ authUser: res.data });
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data.message);
@@ -87,7 +87,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const res = await axiosInstance.post("/admin-auth/login", data);
       set({ authUser: res.data.user });
       toast.success(res.data.message);
-      navigate("/home");
+      navigate("/admin/home");
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data.message);
