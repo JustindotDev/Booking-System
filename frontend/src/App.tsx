@@ -18,7 +18,7 @@ function App() {
   const isProtectedRoutes = protectedRoutes.includes(location.pathname);
 
   useEffect(() => {
-    if (isProtectedRoutes) {
+    if (!isProtectedRoutes) {
       checkAuth();
     } else {
       useAuthStore.setState({ isCheckingAuth: false });

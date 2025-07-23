@@ -106,7 +106,7 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
 
     if (!userData) {
       return res.status(401).json({
-        emailError: "Email not found",
+        message: "Email not found",
       });
     }
 
