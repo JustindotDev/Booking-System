@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader2 } from "lucide-react";
 
@@ -9,21 +9,12 @@ import SignupPage from "@/app/authentication/signup-page";
 import Dashboard from "@/app/dashboard/dashboard-page";
 import { useAuthStore } from "@/store/useAuthStore";
 
-const protectedRoutes = ["/admin/home", "/admin/dashboard"];
-
 function App() {
-  const location = useLocation();
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
-  const isProtectedRoutes = protectedRoutes.includes(location.pathname);
-
   useEffect(() => {
-    if (!isProtectedRoutes) {
-      checkAuth();
-    } else {
-      useAuthStore.setState({ isCheckingAuth: false });
-    }
-  }, [checkAuth, isProtectedRoutes]);
+    checkAuth();
+  }, [checkAuth]);
 
   if (isCheckingAuth && !authUser) {
     return (

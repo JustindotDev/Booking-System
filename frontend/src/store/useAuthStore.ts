@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({ authUser: res.data });
     } catch (error: unknown) {
       if (isAxiosError(error)) {
-        toast.error(error.response?.data.message);
+        console.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
       set({ authUser: null });
