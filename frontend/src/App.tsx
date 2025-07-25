@@ -6,8 +6,10 @@ import { Loader2 } from "lucide-react";
 
 import LoginPage from "@/app/authentication/login-page";
 import SignupPage from "@/app/authentication/signup-page";
-import Dashboard from "@/app/dashboard/dashboard-page";
+import Dashboard from "@/app/admin/dashboard-page";
 import { useAuthStore } from "@/store/useAuthStore";
+import Services from "./app/admin/services-page";
+import Schedule from "./app/admin/schedule-page";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -28,16 +30,28 @@ function App() {
     <div>
       <Routes>
         <Route
-          path="/admin/home"
+          path="/admin/dashboard"
           element={authUser ? <Dashboard /> : <Navigate to="/admin/login" />}
         />
         <Route
+          path="/admin/services"
+          element={authUser ? <Services /> : <Navigate to="/admin/login" />}
+        />
+        <Route
+          path="/admin/schedule"
+          element={authUser ? <Schedule /> : <Navigate to="/admin/login" />}
+        />
+        <Route
           path="/admin/signup"
-          element={!authUser ? <SignupPage /> : <Navigate to="/admin/home" />}
+          element={
+            !authUser ? <SignupPage /> : <Navigate to="/admin/dashboard" />
+          }
         />
         <Route
           path="/admin/login"
-          element={!authUser ? <LoginPage /> : <Navigate to="/admin/home" />}
+          element={
+            !authUser ? <LoginPage /> : <Navigate to="/admin/dashboard" />
+          }
         />
       </Routes>
       <Toaster position="top-center" richColors />
