@@ -22,7 +22,13 @@ export const GetTreatments = async (
         .json({ message: "No treatments found.", treatments: [] });
     }
 
-    return res.status(200).json({ treatments: data });
+    return res.status(200).json({
+      treatments: data.map((treatment) => ({
+        id: treatment.id,
+        treatment: treatment.name,
+        price: treatment.price,
+      })),
+    });
   } catch (error: unknown) {
     console.error("Get treatment  error:", error);
     return res.status(500).json({
