@@ -4,27 +4,16 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 import { DataTable } from "@/components/data-table";
-import { columns, type Treatment } from "@/components/ui/columns";
-
-const data: Treatment[] = [
-  {
-    id: "1",
-    treatment: "Balayage for better hair",
-    price: 125,
-  },
-  {
-    id: "2",
-    treatment: "Hair Color",
-    price: 120,
-  },
-  {
-    id: "3",
-    treatment: "Haircut",
-    price: 100,
-  },
-];
+import { columns } from "@/components/ui/columns";
+import { useAdminServiceStore } from "@/store/useAdminServiceStore";
+import { useEffect } from "react";
 
 export default function Services() {
+  const { fetchTreatments, treatments } = useAdminServiceStore();
+
+  useEffect(() => {
+    fetchTreatments();
+  }, [fetchTreatments]);
   return (
     <SidebarProvider
       style={
@@ -41,7 +30,7 @@ export default function Services() {
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="px-4 lg:px-6">
-                <DataTable columns={columns} data={data} />
+                <DataTable columns={columns} data={treatments} />
               </div>
             </div>
           </div>
