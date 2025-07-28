@@ -4,16 +4,37 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 import { DataTable } from "@/components/data-table";
-import { columns } from "@/components/ui/columns";
+import { getColumns } from "@/components/ui/columns";
+import { type Treatment } from "@/components/ui/columns";
 import { useAdminServiceStore } from "@/store/useAdminServiceStore";
 import { useEffect } from "react";
 
 export default function Services() {
-  const { fetchTreatments, treatments } = useAdminServiceStore();
+  const { fetchTreatments, treatments, deleteTreatments } =
+    useAdminServiceStore();
 
   useEffect(() => {
     fetchTreatments();
   }, [fetchTreatments]);
+
+  const handleDelete = async (treatment: Treatment) => {
+    try {
+      await deleteTreatments(treatment.id);
+    } catch (err) {
+      console.error("Failed to delete:", err);
+    }
+  };
+
+  // const handleEdit = async (treatment: Treatment) => {
+  //   try {
+  //     await updateTreatments(treatment.id, data);
+  //   } catch (err) {
+  //     console.error("Failed to delete:", err);
+  //   }
+  // };
+
+  const columns = getColumns(handleDelete);
+
   return (
     <SidebarProvider
       style={

@@ -3,16 +3,24 @@ import { axiosInstance } from "@/lib/axios-instance";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
 
-type CreateTreatments = {
+type Treatment = {
+  id: string;
   name: string;
   price: number;
 };
 
+type TreatmentsInfo = {
+  name?: string;
+  price?: number;
+};
+
 type AdminServiceStore = {
-  treatments: [];
+  treatments: Treatment[];
   isFetching: boolean;
   fetchTreatments: () => Promise<void>;
-  createTreatments: (data: CreateTreatments) => Promise<boolean>;
+  createTreatments: (data: TreatmentsInfo) => Promise<boolean>;
+  updateTreatments: (id: string, data: TreatmentsInfo) => Promise<void>;
+  deleteTreatments: (id: string) => Promise<void>;
 };
 
 export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
@@ -34,7 +42,7 @@ export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
     }
   },
 
-  createTreatments: async (data: CreateTreatments) => {
+  createTreatments: async (data: TreatmentsInfo) => {
     try {
       const res = await axiosInstance.post(
         "/treatments/create-treatments",
@@ -51,10 +59,25 @@ export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
     }
   },
 
+  updateTreatments: async (id: string, data: TreatmentsInfo) => {
+    try {
+      const res = await axiosInstance.put(`/treatments/${id}`, data);
+      toast.success(res.data.message);
+    } catch (error: unknown) {
+      if (isAxiosError(error)) {
+        toast.error(error.response?.data.message);
+      }
+      console.error("Error caught:", error);
+    }
+  },
+
   deleteTreatments: async (id: string) => {
     try {
-      const res = await axiosInstance.post(`/treatments/${id}`);
+      const res = await axiosInstance.delete(`/treatments/${id}`);
       toast.success(res.data.message);
+      set((state) => ({
+        treatments: state.treatments.filter((t) => t.id !== id),
+      }));
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data.message);

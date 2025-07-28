@@ -12,11 +12,13 @@ import {
 
 export type Treatment = {
   id: string;
-  treatment: string;
+  name: string;
   price: number;
 };
 
-export const columns: ColumnDef<Treatment>[] = [
+export const getColumns = (
+  onDelete: (treatment: Treatment) => void
+): ColumnDef<Treatment>[] => [
   {
     accessorKey: "treatment",
     header: "Treatment",
@@ -27,7 +29,9 @@ export const columns: ColumnDef<Treatment>[] = [
   },
   {
     id: "actions",
-    cell: () => {
+    cell: ({ row }) => {
+      const treatment = row.original;
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -43,7 +47,12 @@ export const columns: ColumnDef<Treatment>[] = [
           <DropdownMenuContent align="end" className="w-32">
             <DropdownMenuItem>Edit</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => onDelete(treatment)}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
