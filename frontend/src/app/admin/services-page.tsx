@@ -1,17 +1,21 @@
+import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
-
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-
 import { DataTable } from "@/components/data-table";
 import { getColumns } from "@/components/ui/columns";
 import { type Treatment } from "@/components/ui/columns";
 import { useAdminServiceStore } from "@/store/useAdminServiceStore";
-import { useEffect } from "react";
+import { EditDialog } from "@/components/ui/columns";
 
 export default function Services() {
-  const { fetchTreatments, treatments, deleteTreatments } =
+  const { fetchTreatments, treatments, deleteTreatments, updateTreatments } =
     useAdminServiceStore();
+
+  const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(
+    null
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchTreatments();
@@ -25,15 +29,26 @@ export default function Services() {
     }
   };
 
-  // const handleEdit = async (treatment: Treatment) => {
-  //   try {
-  //     await updateTreatments(treatment.id, data);
-  //   } catch (err) {
-  //     console.error("Failed to delete:", err);
-  //   }
-  // };
+  const handleEdit = (treatment: Treatment) => {
+    setSelectedTreatment(treatment);
+    setIsDialogOpen(true);
+  };
 
-  const columns = getColumns(handleDelete);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const price = parseFloat(formData.get("price") as string);
+
+    if (!selectedTreatment?.id) return;
+
+    await updateTreatments(selectedTreatment.id, { name, price });
+
+    setIsDialogOpen(false);
+    setSelectedTreatment(null);
+  };
+
+  const columns = getColumns(handleDelete, handleEdit);
 
   return (
     <SidebarProvider
@@ -57,6 +72,12 @@ export default function Services() {
           </div>
         </div>
       </SidebarInset>
+      <EditDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        selectedTreatment={selectedTreatment}
+        onSubmit={handleSubmit}
+      />
     </SidebarProvider>
   );
 }

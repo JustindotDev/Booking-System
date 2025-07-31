@@ -25,7 +25,7 @@ export const GetTreatments = async (
     return res.status(200).json({
       treatments: data.map((treatment) => ({
         id: treatment.id,
-        treatment: treatment.name,
+        name: treatment.name,
         price: treatment.price,
       })),
     });
