@@ -13,7 +13,9 @@ import {
 } from "@/components/ui/dialog";
 
 interface AdminDialogProps {
-  trigger: ReactNode;
+  trigger?: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   title?: string;
   description?: string;
   children?: ReactNode;
@@ -23,6 +25,8 @@ interface AdminDialogProps {
 
 export function AdminDialog({
   trigger,
+  open,
+  onOpenChange,
   title,
   description,
   children,
@@ -30,8 +34,8 @@ export function AdminDialog({
   closeRef,
 }: AdminDialogProps) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={onSubmit} className="grid gap-4">
           <DialogHeader>

@@ -29,6 +29,7 @@ function App() {
   return (
     <div>
       <Routes>
+        <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
         <Route
           path="/admin/dashboard"
           element={authUser ? <Dashboard /> : <Navigate to="/admin/login" />}

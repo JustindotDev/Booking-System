@@ -59,10 +59,15 @@ export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
     }
   },
 
-  updateTreatments: async (id: string, data: TreatmentsInfo) => {
+  updateTreatments: async (id: string | null, data: TreatmentsInfo) => {
     try {
       const res = await axiosInstance.put(`/treatments/${id}`, data);
       toast.success(res.data.message);
+      const updated = res.data.treatment;
+
+      set((state) => ({
+        treatments: state.treatments.map((t) => (t.id === id ? updated : t)),
+      }));
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data.message);

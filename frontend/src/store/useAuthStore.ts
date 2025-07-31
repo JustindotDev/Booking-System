@@ -30,7 +30,7 @@ type AuthStore = {
   checkAuth: () => Promise<void>;
   signUp: (data: Signup, navigate: NavigateFunction) => Promise<void>;
   login: (data: Login, navigate: NavigateFunction) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (navigate: NavigateFunction) => Promise<void>;
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const res = await axiosInstance.post("/admin-auth/signup", data);
       set({ authUser: res.data.user });
       toast.success(res.data.message);
-      navigate("/admin/home");
+      navigate("/admin/dashboard");
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         const data = error.response?.data;
@@ -87,7 +87,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const res = await axiosInstance.post("/admin-auth/login", data);
       set({ authUser: res.data.user });
       toast.success(res.data.message);
-      navigate("/admin/home");
+      navigate("/admin/dashboard");
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data.message);
@@ -98,10 +98,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
-  logout: async () => {
+  logout: async (navigate) => {
     try {
       const res = await axiosInstance.post("/admin-auth/logout");
-      toast.success(res.data.message);
+      setTimeout(() => {
+        navigate("/admin/login");
+        toast.success(res.data.message);
+      }, 3000);
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data.message);
