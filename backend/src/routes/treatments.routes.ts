@@ -9,10 +9,9 @@ import { ProtectRoute } from "../middleware/admin.auth.middleware";
 
 const router = express.Router();
 
-router.use(ProtectRoute);
-router.get("/get-treatments", GetTreatments);
-router.post("/create-treatments", CreateTreatments);
-router.put("/:id", UpdateTreatments);
-router.delete("/:id", DeleteTreatments);
+router.get("/get-treatments", ProtectRoute, GetTreatments);
+router.post("/create-treatments", ProtectRoute, CreateTreatments);
+router.put("/:id", ProtectRoute, UpdateTreatments);
+router.delete("/:id", ProtectRoute, DeleteTreatments);
 
 export default router;

@@ -24,7 +24,6 @@ import {
 
 import { useSidebar } from "./ui/use-sidebar";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useNavigate } from "react-router-dom";
 
 export function NavUser({
   user,
@@ -35,7 +34,6 @@ export function NavUser({
     avatar: string;
   };
 }) {
-  const navigate = useNavigate();
   const { isMobile } = useSidebar();
   const { logout } = useAuthStore();
 
@@ -97,7 +95,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => logout(navigate)}>
+            <DropdownMenuItem onClick={() => logout()}>
               <IconLogout />
               Log out
             </DropdownMenuItem>

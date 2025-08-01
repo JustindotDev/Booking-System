@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import supabase from "../config/db";
+import { type AuthenticatedRequest } from "../types/express";
 
 type TreatmentUpdate = {
   name?: string;
@@ -8,10 +9,14 @@ type TreatmentUpdate = {
 };
 
 export const GetTreatments = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized - No User" });
+    }
+
     const { data, error } = await supabase.from("treatments").select();
 
     if (error) return res.status(400).json({ message: error.message });
@@ -38,10 +43,14 @@ export const GetTreatments = async (
 };
 
 export const CreateTreatments = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized - No User" });
+    }
+
     const { name, image, price } = req.body;
 
     if (!name || price === undefined || isNaN(price)) {
@@ -85,10 +94,14 @@ export const CreateTreatments = async (
 };
 
 export const UpdateTreatments = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized - No User" });
+    }
+
     const { id } = req.params;
     const { name, image, price } = req.body;
 

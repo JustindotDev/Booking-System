@@ -30,7 +30,7 @@ type AuthStore = {
   checkAuth: () => Promise<void>;
   signUp: (data: Signup, navigate: NavigateFunction) => Promise<void>;
   login: (data: Login, navigate: NavigateFunction) => Promise<void>;
-  logout: (navigate: NavigateFunction) => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -98,13 +98,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
-  logout: async (navigate) => {
+  logout: async () => {
     try {
       const res = await axiosInstance.post("/admin-auth/logout");
-      setTimeout(() => {
-        navigate("/admin/login");
-        toast.success(res.data.message);
-      }, 3000);
+      set({ authUser: null });
+
+      toast.success(res.data.message);
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data.message);
