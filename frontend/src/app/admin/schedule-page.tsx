@@ -2,10 +2,52 @@ import { AppSidebar } from "@/components/app-sidebar";
 
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { CircleX } from "lucide-react";
 
 import Calendar from "@/components/calendar";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+
+const weekDays = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 export default function Schedule() {
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  };
+
+  const toggleDay = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const removeDay = (dayToRemove: string) => {
+    setSelectedDays((prev) => prev.filter((d) => d !== dayToRemove));
+  };
+
   return (
     <SidebarProvider
       style={
@@ -21,10 +63,73 @@ export default function Schedule() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6">
-                <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">
+              <div className="px-4 lg:px-6 ">
+                <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
                   Day Off Schedule
                 </h2>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Set Day Off Schedule</CardTitle>
+                    <CardDescription>
+                      Please select a day for your preferred day off
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleSubmit}>
+                      <div className="flex flex-col gap-2">
+                        <Label>Day Off</Label>
+                        <CardDescription className="-mt-1">
+                          You can select multiple day as your day off
+                        </CardDescription>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className=" min-w-[260px] w-fit justify-start h-auto "
+                            >
+                              {selectedDays.length > 0
+                                ? selectedDays.map((day) => (
+                                    <div className="relative border px-2 py-1 rounded-lg group">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          removeDay(day);
+                                        }}
+                                        className="absolute -right-1 -top-1 text-gray-400 bg-white rounded-full  opacity-0 group-hover:opacity-100 transition-opacity "
+                                      >
+                                        <CircleX size={14} />
+                                      </button>
+                                      {day}
+                                    </div>
+                                  ))
+                                : "Select days"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[260px]">
+                            <div className="grid gap-2">
+                              {weekDays.map((day) => (
+                                <div
+                                  key={day}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <Checkbox
+                                    id={day}
+                                    checked={selectedDays.includes(day)}
+                                    onCheckedChange={() => toggleDay(day)}
+                                  />
+                                  <Label htmlFor={day}>{day}</Label>
+                                </div>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        <Button type="submit" className="w-1/8">
+                          Set Day Off
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
               </div>
               <div className="px-4 lg:px-6">
                 <Calendar initialView="dayGridWeek" weekday="long" />
