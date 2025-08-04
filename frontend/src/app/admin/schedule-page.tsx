@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -20,7 +21,8 @@ import { CircleX } from "lucide-react";
 
 import Calendar from "@/components/calendar";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAdminScheduleStore } from "@/store/useAdminScheduleStore";
 
 const weekDays = [
   "Sunday",
@@ -34,9 +36,23 @@ const weekDays = [
 
 export default function Schedule() {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const { dayOffSchedule, fetchSchedule, setDayOff } = useAdminScheduleStore();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    try {
+      await setDayOff({ day: selectedDays });
+    } catch (error) {
+      console.log("Error: ", error);
+    }
+
+    fetchSchedule();
+    setSelectedDays([]);
   };
+
+  useEffect(() => {
+    fetchSchedule();
+  }, [fetchSchedule]);
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
@@ -71,16 +87,32 @@ export default function Schedule() {
                   <CardHeader>
                     <CardTitle>Set Day Off Schedule</CardTitle>
                     <CardDescription>
-                      Please select a day for your preferred day off
+                      You can select multiple day as your day off
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
+                    {dayOffSchedule.length > 0 ? (
+                      dayOffSchedule.map((day) => (
+                        <div className="flex flex-wrap gap-2">
+                          {day.day_off?.map((dayName) => (
+                            <div
+                              key={dayName}
+                              className="border px-4 py-1 rounded-lg"
+                            >
+                              {dayName}
+                            </div>
+                          ))}
+                        </div>
+                      ))
+                    ) : (
+                      <blockquote className="mt-6 pl-6 italic text-gray-600">
+                        No scheduled day off.
+                      </blockquote>
+                    )}
+                  </CardContent>
+                  <CardFooter>
                     <form onSubmit={handleSubmit}>
                       <div className="flex flex-col gap-2">
-                        <Label>Day Off</Label>
-                        <CardDescription className="-mt-1">
-                          You can select multiple day as your day off
-                        </CardDescription>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -123,12 +155,12 @@ export default function Schedule() {
                             </div>
                           </PopoverContent>
                         </Popover>
-                        <Button type="submit" className="w-1/8">
+                        <Button type="submit" className="w-1/2">
                           Set Day Off
                         </Button>
                       </div>
                     </form>
-                  </CardContent>
+                  </CardFooter>
                 </Card>
               </div>
               <div className="px-4 lg:px-6">
