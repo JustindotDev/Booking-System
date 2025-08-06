@@ -16,14 +16,17 @@ type Schedule = {
 
 type AdminScheduleStore = {
   dayOffSchedule: ScheduleEntry[];
+  isFetching: boolean;
   setDayOff: (data: Schedule) => Promise<void>;
   fetchSchedule: () => Promise<void>;
 };
 
 export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
   dayOffSchedule: [],
+  isFetching: false,
 
   fetchSchedule: async () => {
+    set({ isFetching: true });
     try {
       const res = await axiosInstance.get("/schedule/get-schedule");
       set({
@@ -36,6 +39,8 @@ export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
         toast.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
+    } finally {
+      set({ isFetching: false });
     }
   },
 

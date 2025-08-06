@@ -18,6 +18,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { CircleX } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import Calendar from "@/components/calendar";
 import { Label } from "@/components/ui/label";
@@ -36,7 +37,8 @@ const weekDays = [
 
 export default function Schedule() {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const { dayOffSchedule, fetchSchedule, setDayOff } = useAdminScheduleStore();
+  const { dayOffSchedule, fetchSchedule, setDayOff, isFetching } =
+    useAdminScheduleStore();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -78,9 +80,10 @@ export default function Schedule() {
         <SiteHeader title=" Your Schedule" />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6 ">
-                <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
+            <div className="flex flex-col lg:flex-row gap-4 py-4 md:gap-6 md:py-6 ">
+              {/* Day Off Schedule */}
+              <div className="px-4 lg:px-6 flex-grow ">
+                <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4 ">
                   Day Off Schedule
                 </h2>
                 <Card>
@@ -91,9 +94,14 @@ export default function Schedule() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {dayOffSchedule.length > 0 ? (
+                    {isFetching ? (
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-[250px]" />
+                        <Skeleton className="h-4 w-[200px]" />
+                      </div>
+                    ) : dayOffSchedule.length > 0 ? (
                       dayOffSchedule.map((day) => (
-                        <div className="flex flex-wrap gap-2">
+                        <div key={day.id} className="flex flex-wrap gap-2">
                           {day.day_off?.map((dayName) => (
                             <div
                               key={dayName}
@@ -121,7 +129,10 @@ export default function Schedule() {
                             >
                               {selectedDays.length > 0
                                 ? selectedDays.map((day) => (
-                                    <div className="relative border px-2 py-1 rounded-lg group">
+                                    <div
+                                      key={day}
+                                      className="relative border px-2 py-1 rounded-lg group"
+                                    >
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -163,8 +174,17 @@ export default function Schedule() {
                   </CardFooter>
                 </Card>
               </div>
-              <div className="px-4 lg:px-6">
-                <Calendar initialView="dayGridWeek" weekday="long" />
+
+              {/* Closed Schedule */}
+              <div className="px-4 lg:px-6 flex-grow ">
+                <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
+                  Closed Days
+                </h2>
+                <Card>
+                  <CardContent>
+                    <Calendar initialView="dayGridMonth" weekday="short" />
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
