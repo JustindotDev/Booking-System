@@ -1,12 +1,17 @@
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import type { DateClickArg } from "@fullcalendar/interaction";
+import { type EventInput } from "@fullcalendar/core";
 
-export default function Calendar({
+export default function ScheduleCalendar({
   initialView,
   weekday,
   buttonText = {
     today: "Today",
   },
+  handleDateClick,
+  events = [],
 }: {
   initialView: string;
   weekday: "long" | "short" | "narrow";
@@ -14,14 +19,18 @@ export default function Calendar({
   buttonText?: {
     today?: string;
   };
+  handleDateClick?: (arg: DateClickArg) => void;
+  events?: EventInput[];
 }) {
   return (
     <FullCalendar
-      plugins={[dayGridPlugin]}
+      plugins={[dayGridPlugin, interactionPlugin]}
       initialView={initialView}
       dayHeaderFormat={{ weekday: weekday }}
       aspectRatio={1.35}
       buttonText={buttonText}
+      dateClick={handleDateClick}
+      events={events}
     />
   );
 }

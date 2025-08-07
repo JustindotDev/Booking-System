@@ -20,12 +20,14 @@ import { Button } from "@/components/ui/button";
 import { CircleX } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import Calendar from "@/components/calendar";
+import ScheduleCalendar from "@/components/calendar";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAdminScheduleStore } from "@/store/useAdminScheduleStore";
+import { AdminDialog } from "@/components/dialog";
+import type { DateClickArg } from "@fullcalendar/interaction";
 
-const weekDays = [
+const weekDays: string[] = [
   "Sunday",
   "Monday",
   "Tuesday",
@@ -35,10 +37,25 @@ const weekDays = [
   "Saturday",
 ];
 
+type ClosedDate = {
+  date: string;
+};
+
 export default function Schedule() {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const { dayOffSchedule, fetchSchedule, setDayOff, isFetching } =
-    useAdminScheduleStore();
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [daysClosed, setDaysClosed] = useState<ClosedDate | null>({
+    date: "",
+  });
+
+  const {
+    dayOffSchedule,
+    fetchSchedule,
+    setDayOff,
+    isFetching,
+    setClosedDays,
+  } = useAdminScheduleStore();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -65,6 +82,41 @@ export default function Schedule() {
   const removeDay = (dayToRemove: string) => {
     setSelectedDays((prev) => prev.filter((d) => d !== dayToRemove));
   };
+
+  const handleDateClick = (arg: DateClickArg) => {
+    const clickedDate = new Date(arg.dateStr);
+    const calendarApi = arg.view.calendar;
+    const currentDate = calendarApi.getDate();
+    const clickedMonth = clickedDate.getMonth();
+    const currentMonth = currentDate.getMonth();
+
+    const clickedYear = clickedDate.getFullYear();
+    const currentYear = currentDate.getFullYear();
+    if (clickedMonth !== currentMonth || clickedYear !== currentYear) {
+      return;
+    }
+    const formattedDate = clickedDate.toISOString().split("T")[0];
+
+    setDaysClosed({ date: formattedDate });
+    setOpenDialog(true);
+  };
+
+  const submitClosedDays = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      await setClosedDays(daysClosed);
+    } catch (error) {
+      console.log("Error: ", error);
+    }
+    setOpenDialog(false);
+  };
+
+  const closedEvents = dayOffSchedule.map((entry) => ({
+    start: entry.date!,
+    allDay: true,
+    display: "background",
+    color: "red",
+  }));
 
   return (
     <SidebarProvider
@@ -180,9 +232,14 @@ export default function Schedule() {
                 <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
                   Closed Days
                 </h2>
-                <Card>
+                <Card className="min-w-md">
                   <CardContent>
-                    <Calendar initialView="dayGridMonth" weekday="short" />
+                    <ScheduleCalendar
+                      initialView="dayGridMonth"
+                      weekday="short"
+                      handleDateClick={handleDateClick}
+                      events={closedEvents}
+                    />
                   </CardContent>
                 </Card>
               </div>
@@ -190,6 +247,13 @@ export default function Schedule() {
           </div>
         </div>
       </SidebarInset>
+      <AdminDialog
+        open={openDialog}
+        onOpenChange={setOpenDialog}
+        title="Mark as closed?"
+        description="This will mark the selected date as unavailable for scheduling."
+        onSubmit={submitClosedDays}
+      ></AdminDialog>
     </SidebarProvider>
   );
 }
