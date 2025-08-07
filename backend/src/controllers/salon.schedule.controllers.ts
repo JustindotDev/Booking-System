@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import supabase from "../config/db";
+import { type AuthenticatedRequest } from "../types/express";
 
 export const getSchedule = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
@@ -26,7 +27,7 @@ export const getSchedule = async (
 };
 
 export const DayOffSchedule = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
@@ -79,7 +80,7 @@ export const DayOffSchedule = async (
 };
 
 export const ClosedSchedule = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
@@ -127,7 +128,7 @@ export const ClosedSchedule = async (
 };
 
 export const DeleteSchedule = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
