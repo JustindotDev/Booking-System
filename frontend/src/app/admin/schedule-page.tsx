@@ -38,6 +38,7 @@ const weekDays: string[] = [
 ];
 
 type ClosedDate = {
+  id?: string;
   date: string;
 };
 
@@ -54,6 +55,7 @@ export default function Schedule() {
     setDayOff,
     isFetching,
     setClosedDays,
+    deleteClosedDays,
   } = useAdminScheduleStore();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -83,8 +85,35 @@ export default function Schedule() {
     setSelectedDays((prev) => prev.filter((d) => d !== dayToRemove));
   };
 
+  const dayOffNumbers = dayOffSchedule.flatMap((entry) =>
+    (entry.day_off || []).map((day) => weekDays.indexOf(day))
+  );
+
+  const dayOffWeekdays = dayOffSchedule.flatMap((entry) =>
+    (entry.day_off || []).map((weekday) => ({
+      daysOfWeek: [weekDays.indexOf(weekday)],
+      display: "background",
+      color: "#d3d3d3",
+    }))
+  );
+
+  const closedEvents = dayOffSchedule.map((entry) => ({
+    start: entry.date!,
+    allDay: true,
+    display: "background",
+    color: "red",
+  }));
+
+  const allEvents = [...closedEvents, ...dayOffWeekdays];
+
   const handleDateClick = (arg: DateClickArg) => {
     const clickedDate = new Date(arg.dateStr);
+
+    // Don't allow clicks on day-off days
+    if (dayOffNumbers.includes(clickedDate.getDay())) {
+      return;
+    }
+
     const calendarApi = arg.view.calendar;
     const currentDate = calendarApi.getDate();
     const clickedMonth = clickedDate.getMonth();
@@ -96,8 +125,9 @@ export default function Schedule() {
       return;
     }
     const formattedDate = clickedDate.toISOString().split("T")[0];
+    const matchedDay = dayOffSchedule.find((day) => day.date === formattedDate);
 
-    setDaysClosed({ date: formattedDate });
+    setDaysClosed({ date: formattedDate, id: matchedDay?.id });
     setOpenDialog(true);
   };
 
@@ -105,18 +135,30 @@ export default function Schedule() {
     e.preventDefault();
     try {
       await setClosedDays(daysClosed);
+      fetchSchedule();
     } catch (error) {
       console.log("Error: ", error);
     }
     setOpenDialog(false);
   };
 
-  const closedEvents = dayOffSchedule.map((entry) => ({
-    start: entry.date!,
-    allDay: true,
-    display: "background",
-    color: "red",
-  }));
+  const handleUnmarkClosedDays = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+
+    if (!daysClosed?.id) {
+      console.error("No ID available to delete");
+      return;
+    }
+    try {
+      await deleteClosedDays(daysClosed.id);
+      fetchSchedule();
+    } catch (error) {
+      console.log("Error: ", error);
+    }
+    setOpenDialog(false);
+  };
 
   return (
     <SidebarProvider
@@ -238,7 +280,13 @@ export default function Schedule() {
                       initialView="dayGridMonth"
                       weekday="short"
                       handleDateClick={handleDateClick}
-                      events={closedEvents}
+                      events={allEvents}
+                      dayCellClassNames={(arg) => {
+                        const dow = arg.date.getDay(); // 0 = Sunday, 1 = Monday...
+                        return dayOffNumbers.includes(dow)
+                          ? ["fc-day-off"]
+                          : [];
+                      }}
                     />
                   </CardContent>
                 </Card>
@@ -247,13 +295,24 @@ export default function Schedule() {
           </div>
         </div>
       </SidebarInset>
-      <AdminDialog
-        open={openDialog}
-        onOpenChange={setOpenDialog}
-        title="Mark as closed?"
-        description="This will mark the selected date as unavailable for scheduling."
-        onSubmit={submitClosedDays}
-      ></AdminDialog>
+
+      {dayOffSchedule.some((day) => day.date === daysClosed?.date) ? (
+        <AdminDialog
+          open={openDialog}
+          onOpenChange={setOpenDialog}
+          title="Remove Closed Status?"
+          description="This will mark the selected date as available for scheduling."
+          onSubmit={handleUnmarkClosedDays}
+        ></AdminDialog>
+      ) : (
+        <AdminDialog
+          open={openDialog}
+          onOpenChange={setOpenDialog}
+          title="Mark as closed?"
+          description="This will mark the selected date as unavailable for scheduling."
+          onSubmit={submitClosedDays}
+        ></AdminDialog>
+      )}
     </SidebarProvider>
   );
 }

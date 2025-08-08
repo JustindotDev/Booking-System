@@ -20,6 +20,7 @@ type AdminScheduleStore = {
   fetchSchedule: () => Promise<void>;
   setDayOff: (data: Schedule) => Promise<void>;
   setClosedDays: (data: { date: string } | null) => Promise<void>;
+  deleteClosedDays: (id: string) => Promise<void>;
 };
 
 export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
@@ -60,6 +61,17 @@ export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
   setClosedDays: async (data) => {
     try {
       const res = await axiosInstance.post("/schedule/closed-schedule", data);
+      toast.success(res.data.message);
+    } catch (error: unknown) {
+      if (isAxiosError(error)) {
+        toast.error(error.response?.data.message);
+      }
+      console.error("Error caught:", error);
+    }
+  },
+  deleteClosedDays: async (id) => {
+    try {
+      const res = await axiosInstance.delete(`/schedule/${id}`);
       toast.success(res.data.message);
     } catch (error: unknown) {
       if (isAxiosError(error)) {
