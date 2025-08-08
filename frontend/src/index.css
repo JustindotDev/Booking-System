@@ -139,15 +139,6 @@
   -ms-overflow-style: none !important;
 }
 
-/* FullCalendar Header Styling */
-.fc-header-toolbar {
-  /* Customize the entire header container */
-  padding: 1rem;
-  background: var(--color-card);
-  border-bottom: 1px solid var(--color-border);
-  border-radius: 0.5rem 0.5rem 0 0;
-}
-
 .fc-toolbar-title {
   /* Customize the month/year title */
   font-size: 1rem !important;
@@ -161,6 +152,19 @@
   cursor: pointer;
   border-radius: 6px;
   transition: background-color 0.2s ease;
+}
+
+/* Gray background for day off */
+.fc-daygrid-day.fc-day-off {
+  background-color: #f9f9f9 !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+/* Remove hover effect on day-off cells */
+.fc-daygrid-day.fc-day-off:hover {
+  background-color: #f9f9f9 !important;
+  cursor: default !important;
 }
 
 .fc-button {
