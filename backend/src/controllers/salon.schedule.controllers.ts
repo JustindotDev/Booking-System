@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import supabase from "../config/db";
 import { type AuthenticatedRequest } from "../types/express";
 

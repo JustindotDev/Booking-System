@@ -16,7 +16,6 @@ export default function ScheduleCalendar({
 }: {
   initialView: string;
   weekday: "long" | "short" | "narrow";
-  showHeader?: boolean;
   buttonText?: {
     today?: string;
   };

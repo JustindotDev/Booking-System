@@ -167,6 +167,12 @@
   cursor: default !important;
 }
 
+/* Remove hover effect on close-days cells */
+.fc-daygrid-day.fc-closed-day:hover {
+  background-color: #0000 !important;
+  cursor: default !important;
+}
+
 .fc-button {
   /* Customize all buttons (prev, next, today, view switchers) */
   background: var(--color-primary) !important;

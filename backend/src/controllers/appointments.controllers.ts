@@ -76,6 +76,36 @@ export const CreateAppointments = async (
   }
 };
 
+export const ConfirmAppointments = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Please select an appointment." });
+    }
+
+    const { error } = await supabase
+      .from("appointments")
+      .update({ status: "confirm" })
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      return res.status(500).json({
+        message: "Failed to confirm appointment.",
+        error: error.message,
+      });
+    }
+
+    return res.status(200).json({ message: "Appointment confirmed." });
+  } catch (error: unknown) {
+    console.error("Apointment confirmation error:", error);
+    return res.status(500).json({
+      message: "Something went wrong in ConfirmAppointment controller.",
+    });
+  }
+};
+
 export const DeleteAppointments = async (
   req: Request,
   res: Response
