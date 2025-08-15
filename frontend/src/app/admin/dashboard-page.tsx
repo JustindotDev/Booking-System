@@ -4,9 +4,11 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 import Calendar from "@/components/calendar";
+import { DashboardSheet } from "@/components/dashboard-sheet";
 import { useAdminScheduleStore } from "@/store/useAdminScheduleStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAdminDashboardStore } from "@/store/useAdminDashboardStore";
+import type { DateClickArg } from "@fullcalendar/interaction";
 
 const weekDays: string[] = [
   "Sunday",
@@ -19,6 +21,8 @@ const weekDays: string[] = [
 ];
 
 export default function Dashboard() {
+  const [openSheet, setOpenSheet] = useState<boolean>(false);
+  const [date, setDate] = useState<string>("");
   const { dayOffSchedule, fetchSchedule } = useAdminScheduleStore();
   const { appointments, fetchAppointments } = useAdminDashboardStore();
 
@@ -58,6 +62,59 @@ export default function Dashboard() {
     ...dayOffWeekdays,
     ...daysWithAppointment,
   ];
+
+  const handleDateClick = (arg: DateClickArg) => {
+    const clickedDate = new Date(arg.dateStr);
+
+    // Block if it's a recurring day-off
+    if (dayOffNumbers.includes(clickedDate.getDay())) {
+      return;
+    }
+
+    // Block if it's a closed date
+    const isClosedDate = closedEvents.some(
+      (event) =>
+        event.start &&
+        new Date(event.start).toDateString() === clickedDate.toDateString()
+    );
+    if (isClosedDate) {
+      return;
+    }
+    const calendarApi = arg.view.calendar;
+    const currentDate = calendarApi.getDate();
+    const clickedMonth = clickedDate.getMonth();
+    const currentMonth = currentDate.getMonth();
+
+    const clickedYear = clickedDate.getFullYear();
+    const currentYear = currentDate.getFullYear();
+    if (clickedMonth !== currentMonth || clickedYear !== currentYear) {
+      return;
+    }
+
+    const haveAppointment = daysWithAppointment.some(
+      (event) =>
+        event.start &&
+        new Date(event.start).toDateString() === clickedDate.toDateString()
+    );
+
+    const parts = new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).formatToParts(clickedDate);
+
+    const customDate = `${parts.find((p) => p.type === "weekday")?.value} • ${
+      parts.find((p) => p.type === "month")?.value
+    } ${parts.find((p) => p.type === "day")?.value} - ${
+      parts.find((p) => p.type === "year")?.value
+    }`;
+
+    if (haveAppointment) {
+      setOpenSheet(true);
+      setDate(customDate);
+    }
+  };
   return (
     <SidebarProvider
       style={
@@ -78,6 +135,7 @@ export default function Dashboard() {
                   initialView="dayGridMonth"
                   weekday="short"
                   events={allEvents}
+                  handleDateClick={handleDateClick}
                   dayCellClassNames={(arg) => {
                     const dow = arg.date.getDay();
                     // Recurring day-offs (weekly)
@@ -104,6 +162,11 @@ export default function Dashboard() {
           </div>
         </div>
       </SidebarInset>
+      <DashboardSheet
+        open={openSheet}
+        openOnChange={setOpenSheet}
+        date={date}
+      />
     </SidebarProvider>
   );
 }
