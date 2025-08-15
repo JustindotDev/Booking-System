@@ -33,6 +33,12 @@ export default function ScheduleCalendar({
       dateClick={handleDateClick}
       events={events}
       dayCellClassNames={dayCellClassNames}
+      dayMaxEventRows={true}
+      views={{
+        dayGridMonth: {
+          dayMaxEventRows: 2,
+        },
+      }}
     />
   );
 }

@@ -23,7 +23,7 @@ export const GetAppointments = async (
     if (!data || data.length === 0) {
       return res
         .status(200)
-        .json({ message: "No appointments found.", treatments: [] });
+        .json({ message: "No appointments found.", appointments: [] });
     }
 
     return res.status(200).json({ appointments: data });
