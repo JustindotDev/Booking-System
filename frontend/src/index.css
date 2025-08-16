@@ -119,6 +119,26 @@
   }
 }
 
+.scrollbar-hover {
+  -ms-overflow-style: none; /* IE & Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hover::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.scrollbar-hover:hover {
+  -ms-overflow-style: auto; /* IE & Edge */
+  scrollbar-width: thin; /* Firefox */
+}
+
+.scrollbar-hover:hover::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
 /* Hide scrollbars for FullCalendar */
 .fc-scroller,
 .fc-scroller-liquid,

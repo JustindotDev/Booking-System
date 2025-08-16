@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import supabase from "../config/db";
+import { AuthenticatedRequest } from "../types/express";
 
 export const GetAppointments = async (
   req: Request,
@@ -13,7 +14,8 @@ export const GetAppointments = async (
         appointment_date,
         treatments (
           name
-        )
+        ),
+        status
       `);
 
     if (error) {
@@ -76,7 +78,10 @@ export const CreateAppointments = async (
   }
 };
 
-export const ConfirmAppointments = async (req: Request, res: Response) => {
+export const ConfirmAppointments = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
   try {
     const { id } = req.params;
 
@@ -84,9 +89,22 @@ export const ConfirmAppointments = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Please select an appointment." });
     }
 
+    const { data: existing } = await supabase
+      .from("appointments")
+      .select("id, status")
+      .eq("id", id)
+      .eq("status", "confirmed")
+      .single();
+
+    if (existing) {
+      return res
+        .status(400)
+        .json({ message: "Appointment already confirmed." });
+    }
+
     const { error } = await supabase
       .from("appointments")
-      .update({ status: "confirm" })
+      .update({ status: "confirmed" })
       .eq("id", id)
       .select();
 
@@ -106,22 +124,30 @@ export const ConfirmAppointments = async (req: Request, res: Response) => {
   }
 };
 
-export const DeleteAppointments = async (
-  req: Request,
+export const CancelAppointments = async (
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {
     const { id } = req.params;
 
-    const { error } = await supabase.from("appointments").delete().eq("id", id);
+    if (!id) {
+      return res.status(400).json({ message: "Please select an appointment." });
+    }
+
+    const { error } = await supabase
+      .from("appointments")
+      .update({ status: "cancelled" })
+      .eq("id", id)
+      .select();
 
     if (error) return res.status(500).json({ message: error.message });
 
-    return res.status(200).json({ message: "Deleted Succesfully!" });
+    return res.status(200).json({ message: "Cancelled Succesfully!" });
   } catch (error: unknown) {
-    console.error("Apointment deletion error:", error);
+    console.error("Apointment cancelation error:", error);
     return res.status(500).json({
-      message: "Something went wrong in DeleteAppointments controller.",
+      message: "Something went wrong in CancelAppointments controller.",
     });
   }
 };
