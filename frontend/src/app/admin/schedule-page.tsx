@@ -271,16 +271,37 @@ export default function Schedule() {
 
               {/* Closed Schedule */}
               <div className="px-4 lg:px-6 flex-grow ">
-                <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
-                  Closed Days
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-2">
+                    Closed Days
+                  </h2>
+                  <div className="flex items-center gap-6 mb-2">
+                    {/* Day-Off */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-gray-400 shadow-sm"></div>
+                      <span className="text-sm font-medium text-gray-700">
+                        Day-Off
+                      </span>
+                    </div>
+
+                    {/* Closed Days */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-red-300 shadow-sm"></div>
+                      <span className="text-sm font-medium text-gray-700">
+                        Closed Days
+                      </span>
+                    </div>
+                  </div>
+                </div>
                 <Card className="min-w-md">
                   <CardContent>
                     <ScheduleCalendar
                       initialView="dayGridMonth"
+                      headerToolbar={{ center: "" }}
                       weekday="short"
                       handleDateClick={handleDateClick}
                       events={allEvents}
+                      aspectRatio={1.35}
                       dayCellClassNames={(arg) => {
                         const dow = arg.date.getDay(); // 0 = Sunday, 1 = Monday...
                         return dayOffNumbers.includes(dow)
