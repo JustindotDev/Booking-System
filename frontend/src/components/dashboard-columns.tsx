@@ -1,6 +1,6 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { type Appointments } from "@/store/useAdminDashboardStore";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 import { MoreVertical } from "lucide-react";
 import { Check, X } from "lucide-react";
