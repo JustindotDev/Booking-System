@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useAdminDashboardStore } from "@/store/useAdminDashboardStore";
 import type { DateClickArg } from "@fullcalendar/interaction";
 
+// REFACTOR: make this a util if possible
 const weekDays: string[] = [
   "Sunday",
   "Monday",
@@ -31,6 +32,7 @@ export default function Dashboard() {
     fetchAppointments();
   }, [fetchSchedule, fetchAppointments]);
 
+  // REFACTOR: make this a util if possible
   const daysWithAppointment = appointments.map((entry) => ({
     title: entry.customer_name,
     start: entry.appointment_date,
@@ -38,10 +40,12 @@ export default function Dashboard() {
     color: "#4A90E2",
   }));
 
+  // REFACTOR: make this a util if possible
   const dayOffNumbers = dayOffSchedule.flatMap((entry) =>
     (entry.day_off || []).map((day) => weekDays.indexOf(day))
   );
 
+  // REFACTOR: make this a util if possible
   const dayOffWeekdays = dayOffSchedule.flatMap((entry) =>
     (entry.day_off || []).map((weekday) => ({
       daysOfWeek: [weekDays.indexOf(weekday)],
@@ -50,6 +54,7 @@ export default function Dashboard() {
     }))
   );
 
+  // REFACTOR: make this a util if possible
   const closedEvents = dayOffSchedule.map((entry) => ({
     start: entry.date!,
     allDay: true,
@@ -57,12 +62,14 @@ export default function Dashboard() {
     color: "red",
   }));
 
+  // REFACTOR: make this a util if possible
   const allEvents = [
     ...closedEvents,
     ...dayOffWeekdays,
     ...daysWithAppointment,
   ];
 
+  // REFACTOR: make this a util if possible
   const handleDateClick = (arg: DateClickArg) => {
     const clickedDate = new Date(arg.dateStr);
 
@@ -77,6 +84,7 @@ export default function Dashboard() {
         event.start &&
         new Date(event.start).toDateString() === clickedDate.toDateString()
     );
+
     if (isClosedDate) {
       return;
     }

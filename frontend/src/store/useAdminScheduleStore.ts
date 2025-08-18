@@ -3,7 +3,7 @@ import { axiosInstance } from "@/lib/axios-instance";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
 
-type ScheduleEntry = {
+export type ScheduleEntry = {
   id: string;
   isClosed: boolean;
   date: string | null;
