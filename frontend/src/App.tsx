@@ -4,12 +4,12 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader2 } from "lucide-react";
 
-import LoginPage from "@/app/authentication/login-page";
-import SignupPage from "@/app/authentication/signup-page";
-import Dashboard from "@/app/admin/dashboard-page";
+import LoginPage from "@/app/admin/authentication/login-page";
+import SignupPage from "@/app/admin/authentication/signup-page";
+import Dashboard from "@/app/admin/dashboard/page";
 import { useAuthStore } from "@/store/useAuthStore";
-import Services from "./app/admin/services-page";
-import Schedule from "./app/admin/schedule-page";
+import Services from "./app/admin/services/page";
+import Schedule from "./app/admin/schedule/page";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();

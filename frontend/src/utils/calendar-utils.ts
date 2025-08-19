@@ -1,9 +1,20 @@
 import type { DateClickArg } from "@fullcalendar/interaction";
 import type { ScheduleEntry } from "@/store/useAdminScheduleStore";
+import type { Appointments } from "@/store/useAdminDashboardStore";
 
 type DayOffScheduleEntry = {
   day_off: string[] | null;
   date: string | null;
+};
+
+type AppointmentsEntry = Partial<Appointments>;
+
+type ProcessDateClickOptions = {
+  blockDayOffs?: boolean;
+  blockClosedDates?: boolean;
+  blockOutsideMonth?: boolean;
+  returnCustomDate?: boolean;
+  daysWithAppointment?: { start: string }[];
 };
 
 const getDayOffNumbers = (
@@ -39,22 +50,57 @@ const getClosedEvents = (dayOffSchedule: DayOffScheduleEntry[]) => {
 
 const getAllEvents = (
   dayOffSchedule: DayOffScheduleEntry[],
-  weekDays: string[]
+  weekDays: string[],
+  appointments?: AppointmentsEntry[]
 ) => {
   const closedEvents = getClosedEvents(dayOffSchedule);
   const dayOffWeekdays = getDayOffWeekdays(dayOffSchedule, weekDays);
-  return [...closedEvents, ...dayOffWeekdays];
+  const appointmentEvents = appointments
+    ? getDaysWithAppointment(appointments)
+    : [];
+
+  return [...closedEvents, ...dayOffWeekdays, ...appointmentEvents];
+};
+
+const getDaysWithAppointment = (appointments: AppointmentsEntry[]) => {
+  return appointments.map((entry) => ({
+    title: entry.customer_name,
+    start: entry.appointment_date,
+    allDay: true,
+    color: "#4A90E2",
+  }));
 };
 
 const processDateClick = (
   arg: DateClickArg,
   dayOffNumbers: number[],
-  dayOffSchedule: ScheduleEntry[]
+  closedEvents: { start: string }[],
+  dayOffSchedule: ScheduleEntry[],
+  options: ProcessDateClickOptions = {}
 ) => {
+  const {
+    blockDayOffs = true,
+    blockClosedDates = true,
+    blockOutsideMonth = true,
+    returnCustomDate = false,
+    daysWithAppointment = [],
+  } = options;
   const clickedDate = new Date(arg.dateStr);
 
   // Don't allow clicks on day-off days
-  if (dayOffNumbers.includes(clickedDate.getDay())) return null;
+  if (blockDayOffs && dayOffNumbers.includes(clickedDate.getDay())) return null;
+
+  // Don't allow clicks on closed days
+  if (
+    blockClosedDates &&
+    closedEvents.some(
+      (event) =>
+        event.start &&
+        new Date(event.start).toDateString() === clickedDate.toDateString()
+    )
+  ) {
+    return null;
+  }
 
   const calendarApi = arg.view.calendar;
   const currentDate = calendarApi.getDate();
@@ -64,12 +110,43 @@ const processDateClick = (
   const clickedYear = clickedDate.getFullYear();
   const currentYear = currentDate.getFullYear();
 
-  if (clickedMonth !== currentMonth || clickedYear !== currentYear) return null;
+  if (
+    (blockOutsideMonth && clickedMonth !== currentMonth) ||
+    clickedYear !== currentYear
+  )
+    return null;
+
+  const haveAppointments = daysWithAppointment.some(
+    (event) =>
+      event.start &&
+      new Date(event.start).toDateString() === clickedDate.toDateString()
+  );
 
   const formattedDate = clickedDate.toISOString().split("T")[0];
   const matchedDay = dayOffSchedule.find((day) => day.date === formattedDate);
 
-  return { date: formattedDate, id: matchedDay?.id };
+  let customDate: string | undefined;
+  if (returnCustomDate) {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).formatToParts(clickedDate);
+
+    customDate = `${parts.find((p) => p.type === "weekday")?.value} • ${
+      parts.find((p) => p.type === "month")?.value
+    } ${parts.find((p) => p.type === "day")?.value} - ${
+      parts.find((p) => p.type === "year")?.value
+    }`;
+  }
+
+  return {
+    date: formattedDate,
+    id: matchedDay?.id,
+    customDate,
+    haveAppointments,
+  };
 };
 
 export {
@@ -78,4 +155,5 @@ export {
   getClosedEvents,
   getAllEvents,
   processDateClick,
+  getDaysWithAppointment,
 };

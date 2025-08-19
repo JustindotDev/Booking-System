@@ -5,18 +5,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { DataTable } from "./dashboard-data-table";
+import { DataTable } from "@/components/dashboard/data-table";
 import {
   type AppointmentDetails,
   columns,
-} from "@/components/dashboard-columns";
+} from "@/components/dashboard/columns";
 
 import { useAdminDashboardStore } from "@/store/useAdminDashboardStore";
 
 interface DashboardSheetProps {
   open: boolean;
   openOnChange: (open: boolean) => void;
-  date: string;
+  date: string | undefined;
 }
 
 export const DashboardSheet = ({
