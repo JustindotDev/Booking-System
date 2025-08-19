@@ -1,29 +1,26 @@
-import { AppSidebar } from "@/components/app-sidebar";
-
-import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-
-import Calendar from "@/components/calendar";
-import { DashboardSheet } from "@/components/dashboard-sheet";
-import { useAdminScheduleStore } from "@/store/useAdminScheduleStore";
 import { useEffect, useState } from "react";
 import { useAdminDashboardStore } from "@/store/useAdminDashboardStore";
+import { useAdminScheduleStore } from "@/store/useAdminScheduleStore";
+
 import type { DateClickArg } from "@fullcalendar/interaction";
 
-// REFACTOR: make this a util if possible
-const weekDays: string[] = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { DashboardSheet } from "@/components/dashboard/sheet";
+import { getWeekDays } from "@/lib/weekdays";
+import Calendar from "@/components/calendar";
+import {
+  getDaysWithAppointment,
+  getDayOffNumbers,
+  getClosedEvents,
+  getAllEvents,
+  processDateClick,
+} from "@/utils/calendar-utils";
 
 export default function Dashboard() {
   const [openSheet, setOpenSheet] = useState<boolean>(false);
-  const [date, setDate] = useState<string>("");
+  const [date, setDate] = useState<string | undefined>("");
   const { dayOffSchedule, fetchSchedule } = useAdminScheduleStore();
   const { appointments, fetchAppointments } = useAdminDashboardStore();
 
@@ -32,95 +29,28 @@ export default function Dashboard() {
     fetchAppointments();
   }, [fetchSchedule, fetchAppointments]);
 
-  // REFACTOR: make this a util if possible
-  const daysWithAppointment = appointments.map((entry) => ({
-    title: entry.customer_name,
-    start: entry.appointment_date,
-    allDay: true,
-    color: "#4A90E2",
-  }));
+  const weekDays = getWeekDays;
+  const daysWithAppointment = getDaysWithAppointment(appointments);
+  const dayOffNumbers = getDayOffNumbers(dayOffSchedule, weekDays);
+  const closedEvents = getClosedEvents(dayOffSchedule);
+  const allEvents = getAllEvents(dayOffSchedule, weekDays, appointments);
 
-  // REFACTOR: make this a util if possible
-  const dayOffNumbers = dayOffSchedule.flatMap((entry) =>
-    (entry.day_off || []).map((day) => weekDays.indexOf(day))
-  );
-
-  // REFACTOR: make this a util if possible
-  const dayOffWeekdays = dayOffSchedule.flatMap((entry) =>
-    (entry.day_off || []).map((weekday) => ({
-      daysOfWeek: [weekDays.indexOf(weekday)],
-      display: "background",
-      color: "#d3d3d3",
-    }))
-  );
-
-  // REFACTOR: make this a util if possible
-  const closedEvents = dayOffSchedule.map((entry) => ({
-    start: entry.date!,
-    allDay: true,
-    display: "background",
-    color: "red",
-  }));
-
-  // REFACTOR: make this a util if possible
-  const allEvents = [
-    ...closedEvents,
-    ...dayOffWeekdays,
-    ...daysWithAppointment,
-  ];
-
-  // REFACTOR: make this a util if possible
   const handleDateClick = (arg: DateClickArg) => {
-    const clickedDate = new Date(arg.dateStr);
-
-    // Block if it's a recurring day-off
-    if (dayOffNumbers.includes(clickedDate.getDay())) {
-      return;
-    }
-
-    // Block if it's a closed date
-    const isClosedDate = closedEvents.some(
-      (event) =>
-        event.start &&
-        new Date(event.start).toDateString() === clickedDate.toDateString()
+    const result = processDateClick(
+      arg,
+      dayOffNumbers,
+      closedEvents,
+      dayOffSchedule,
+      {
+        daysWithAppointment: daysWithAppointment
+          .filter((e) => e.start)
+          .map((e) => ({ start: e.start! })),
+      }
     );
 
-    if (isClosedDate) {
-      return;
-    }
-    const calendarApi = arg.view.calendar;
-    const currentDate = calendarApi.getDate();
-    const clickedMonth = clickedDate.getMonth();
-    const currentMonth = currentDate.getMonth();
-
-    const clickedYear = clickedDate.getFullYear();
-    const currentYear = currentDate.getFullYear();
-    if (clickedMonth !== currentMonth || clickedYear !== currentYear) {
-      return;
-    }
-
-    const haveAppointment = daysWithAppointment.some(
-      (event) =>
-        event.start &&
-        new Date(event.start).toDateString() === clickedDate.toDateString()
-    );
-
-    const parts = new Intl.DateTimeFormat("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).formatToParts(clickedDate);
-
-    const customDate = `${parts.find((p) => p.type === "weekday")?.value} • ${
-      parts.find((p) => p.type === "month")?.value
-    } ${parts.find((p) => p.type === "day")?.value} - ${
-      parts.find((p) => p.type === "year")?.value
-    }`;
-
-    if (haveAppointment) {
+    if (result?.haveAppointments) {
       setOpenSheet(true);
-      setDate(customDate);
+      setDate(result.customDate);
     }
   };
   return (

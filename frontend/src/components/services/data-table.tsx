@@ -19,11 +19,11 @@ import { CircleAlert } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import { useAdminServiceStore } from "@/store/useAdminServiceStore";
-import { Skeleton } from "./ui/skeleton";
-import { AdminDialog } from "./dialog";
+import { Skeleton } from "../ui/skeleton";
+import { AdminDialog } from "../dialog";
 import useForm from "@/hooks/use-form";
 
 interface DataTableProps<TData, TValue> {

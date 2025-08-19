@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { DataTable } from "@/components/data-table";
-import { getColumns } from "@/components/ui/columns";
-import { type Treatment } from "@/components/ui/columns";
+import { DataTable } from "@/components/services/data-table";
+import { getColumns } from "@/components/services/columns";
+import { type Treatment } from "@/components/services/columns";
 import { useAdminServiceStore } from "@/store/useAdminServiceStore";
-import { EditDialog } from "@/components/ui/columns";
+import { EditDialog } from "@/components/services/columns";
 
 export default function Services() {
   const { fetchTreatments, treatments, deleteTreatments, updateTreatments } =
