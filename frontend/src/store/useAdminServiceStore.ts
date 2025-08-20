@@ -17,6 +17,7 @@ type TreatmentsInfo = {
 type AdminServiceStore = {
   treatments: Treatment[];
   isFetching: boolean;
+  isLoading: boolean;
   fetchTreatments: () => Promise<void>;
   createTreatments: (data: TreatmentsInfo) => Promise<boolean>;
   updateTreatments: (id: string, data: TreatmentsInfo) => Promise<void>;
@@ -26,6 +27,7 @@ type AdminServiceStore = {
 export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
   treatments: [],
   isFetching: false,
+  isLoading: false,
 
   fetchTreatments: async () => {
     set({ isFetching: true });
@@ -43,6 +45,7 @@ export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
   },
 
   createTreatments: async (data: TreatmentsInfo) => {
+    set({ isLoading: true });
     try {
       const res = await axiosInstance.post(
         "/treatments/create-treatments",
@@ -56,10 +59,13 @@ export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
       }
       console.error("Error caught:", error);
       return false;
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   updateTreatments: async (id: string | null, data: TreatmentsInfo) => {
+    set({ isLoading: true });
     try {
       const res = await axiosInstance.put(`/treatments/${id}`, data);
       toast.success(res.data.message);
@@ -73,10 +79,13 @@ export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
         toast.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   deleteTreatments: async (id: string) => {
+    set({ isLoading: true });
     try {
       const res = await axiosInstance.delete(`/treatments/${id}`);
       toast.success(res.data.message);
@@ -88,6 +97,8 @@ export const useAdminServiceStore = create<AdminServiceStore>((set) => ({
         toast.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));

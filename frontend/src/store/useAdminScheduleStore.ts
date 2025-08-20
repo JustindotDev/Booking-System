@@ -17,6 +17,7 @@ type Schedule = {
 type AdminScheduleStore = {
   dayOffSchedule: ScheduleEntry[];
   isFetching: boolean;
+  isLoading: boolean;
   fetchSchedule: () => Promise<void>;
   setDayOff: (data: Schedule) => Promise<void>;
   setClosedDays: (data: { date: string } | null) => Promise<void>;
@@ -26,7 +27,9 @@ type AdminScheduleStore = {
 export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
   dayOffSchedule: [],
   isFetching: false,
+  isLoading: false,
 
+  // REFACTOR: Create a separate separate fetch for day off and closed days
   fetchSchedule: async () => {
     set({ isFetching: true });
     try {
@@ -47,6 +50,7 @@ export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
   },
 
   setDayOff: async (data) => {
+    set({ isLoading: true });
     try {
       const res = await axiosInstance.post("/schedule/day-off-schedule", data);
       toast.success(res.data.message);
@@ -55,10 +59,13 @@ export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
         toast.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   setClosedDays: async (data) => {
+    set({ isLoading: true });
     try {
       const res = await axiosInstance.post("/schedule/closed-schedule", data);
       toast.success(res.data.message);
@@ -67,9 +74,12 @@ export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
         toast.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
   deleteClosedDays: async (id) => {
+    set({ isLoading: true });
     try {
       const res = await axiosInstance.delete(`/schedule/${id}`);
       toast.success(res.data.message);
@@ -78,6 +88,8 @@ export const useAdminScheduleStore = create<AdminScheduleStore>((set) => ({
         toast.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));

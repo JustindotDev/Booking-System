@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
 interface AdminDialogProps {
   trigger?: ReactNode;
@@ -21,6 +22,7 @@ interface AdminDialogProps {
   children?: ReactNode;
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   closeRef?: RefObject<HTMLButtonElement | null>;
+  loading?: boolean;
 }
 
 export function AdminDialog({
@@ -32,6 +34,7 @@ export function AdminDialog({
   children,
   onSubmit,
   closeRef,
+  loading = false,
 }: AdminDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,7 +52,14 @@ export function AdminDialog({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <Loader2 className="h-8 w-8 animate-spin text-white" />
+              ) : (
+                "Save"
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
