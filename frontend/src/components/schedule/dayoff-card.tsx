@@ -20,9 +20,11 @@ import { Button } from "@/components/ui/button";
 import { CircleX } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 
 const DayOffCard = () => {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const { dayOffSchedule, fetchSchedule, setDayOff, isFetching } =
     useAdminScheduleStore();
 
@@ -31,10 +33,13 @@ const DayOffCard = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    setLoading(true);
     try {
       await setDayOff({ day: selectedDays });
     } catch (error) {
       console.log("Error: ", error);
+    } finally {
+      setLoading(false);
     }
 
     fetchSchedule();
@@ -125,7 +130,10 @@ const DayOffCard = () => {
                 </div>
               </PopoverContent>
             </Popover>
-            <Button type="submit" className="w-1/2">
+            <Button type="submit" className="w-1/2" disabled={loading}>
+              {loading && (
+                <Loader2 className="h-8 w-8 animate-spin text-white" />
+              )}
               Set Day Off
             </Button>
           </div>

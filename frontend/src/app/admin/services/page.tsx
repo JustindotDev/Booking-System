@@ -9,8 +9,13 @@ import { useAdminServiceStore } from "@/store/useAdminServiceStore";
 import { EditDialog } from "@/components/services/columns";
 
 export default function Services() {
-  const { fetchTreatments, treatments, deleteTreatments, updateTreatments } =
-    useAdminServiceStore();
+  const {
+    fetchTreatments,
+    treatments,
+    deleteTreatments,
+    updateTreatments,
+    isLoading,
+  } = useAdminServiceStore();
 
   const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(
     null
@@ -77,6 +82,7 @@ export default function Services() {
         onOpenChange={setIsDialogOpen}
         selectedTreatment={selectedTreatment}
         onSubmit={handleSubmit}
+        loading={isLoading}
       />
     </SidebarProvider>
   );

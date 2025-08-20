@@ -29,8 +29,13 @@ export default function Schedule() {
     date: "",
   });
 
-  const { dayOffSchedule, fetchSchedule, setClosedDays, deleteClosedDays } =
-    useAdminScheduleStore();
+  const {
+    dayOffSchedule,
+    fetchSchedule,
+    setClosedDays,
+    deleteClosedDays,
+    isLoading,
+  } = useAdminScheduleStore();
 
   useEffect(() => {
     fetchSchedule();
@@ -58,6 +63,7 @@ export default function Schedule() {
 
   const submitClosedDays = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     try {
       await setClosedDays(daysClosed);
       fetchSchedule();
@@ -76,6 +82,7 @@ export default function Schedule() {
       console.error("No ID available to delete");
       return;
     }
+
     try {
       await deleteClosedDays(daysClosed.id);
       fetchSchedule();
@@ -168,6 +175,7 @@ export default function Schedule() {
             : "This will mark the selected date as unavailable for scheduling."
         }
         onSubmit={isClosed ? handleUnmarkClosedDays : submitClosedDays}
+        loading={isLoading}
       ></AdminDialog>
     </SidebarProvider>
   );

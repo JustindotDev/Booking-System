@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({
       }
     }
   );
-  const { isFetching, createTreatments, fetchTreatments } =
+  const { isFetching, createTreatments, fetchTreatments, isLoading } =
     useAdminServiceStore();
 
   function handleValidation() {
@@ -94,6 +94,7 @@ export function DataTable<TData, TValue>({
           description="Enter the information below to add treatment."
           onSubmit={handleSubmit}
           closeRef={closeRef}
+          loading={isLoading}
         >
           <div className="grid gap-3">
             <Label htmlFor="name">Name</Label>

@@ -54,9 +54,12 @@ export const getColumns = (
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            {/* REFACTOR: Open a modal instead of deletign directly for better UX */}
             <DropdownMenuItem
               variant="destructive"
-              onClick={() => onDelete(treatment)}
+              onClick={() => {
+                onDelete(treatment);
+              }}
             >
               Delete
             </DropdownMenuItem>
@@ -72,6 +75,7 @@ interface EditDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedTreatment: Treatment | null;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  loading: boolean;
 }
 
 export const EditDialog = ({
@@ -79,6 +83,7 @@ export const EditDialog = ({
   onOpenChange,
   selectedTreatment,
   onSubmit,
+  loading = false,
 }: EditDialogProps) => {
   return (
     <AdminDialog
@@ -87,6 +92,7 @@ export const EditDialog = ({
       title="Edit Treatment"
       description="Update the treatment details below."
       onSubmit={onSubmit}
+      loading={loading}
     >
       <div className="grid gap-4">
         <div className="grid gap-2">
