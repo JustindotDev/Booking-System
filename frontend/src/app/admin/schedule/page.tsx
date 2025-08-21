@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import type { DateClickArg } from "@fullcalendar/interaction";
 
 import { useAdminScheduleStore } from "@/store/useAdminScheduleStore";
-import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import ScheduleCalendar from "@/components/calendar";
 import { AdminDialog } from "@/components/dialog";
@@ -15,7 +14,7 @@ import {
   processDateClick,
   getClosedEvents,
 } from "@/utils/calendar-utils";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 
 type ClosedDate = {
@@ -95,76 +94,63 @@ export default function Schedule() {
   const isClosed = dayOffSchedule.some((day) => day.date === daysClosed?.date);
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title=" Your Schedule" />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col lg:flex-row gap-4 py-4 md:gap-6 md:py-6 ">
-              {/* Day Off Schedule */}
-              <div className="px-4 lg:px-6 flex-grow ">
-                <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4 ">
-                  Day Off Schedule
+    <SidebarInset>
+      <SiteHeader title=" Your Schedule" />
+      <div className="flex flex-1 flex-col">
+        <div className="@container/main flex flex-1 flex-col gap-2">
+          <div className="flex flex-col lg:flex-row gap-4 py-4 md:gap-6 md:py-6 ">
+            {/* Day Off Schedule */}
+            <div className="px-4 lg:px-6 flex-grow ">
+              <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4 ">
+                Day Off Schedule
+              </h2>
+              <DayOffCard />
+            </div>
+
+            {/* Closed Schedule */}
+            <div className="px-4 lg:px-6 flex-grow ">
+              <div className="flex items-center justify-between">
+                <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-2">
+                  Closed Days
                 </h2>
-                <DayOffCard />
-              </div>
+                <div className="flex items-center gap-6 mb-2">
+                  {/* Day-Off */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-gray-400 shadow-sm"></div>
+                    <span className="text-sm font-medium text-gray-700">
+                      Day-Off
+                    </span>
+                  </div>
 
-              {/* Closed Schedule */}
-              <div className="px-4 lg:px-6 flex-grow ">
-                <div className="flex items-center justify-between">
-                  <h2 className="scroll-m-20 text-xl font-semibold tracking-tight mb-2">
-                    Closed Days
-                  </h2>
-                  <div className="flex items-center gap-6 mb-2">
-                    {/* Day-Off */}
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-gray-400 shadow-sm"></div>
-                      <span className="text-sm font-medium text-gray-700">
-                        Day-Off
-                      </span>
-                    </div>
-
-                    {/* Closed Days */}
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-red-300 shadow-sm"></div>
-                      <span className="text-sm font-medium text-gray-700">
-                        Closed Days
-                      </span>
-                    </div>
+                  {/* Closed Days */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-red-300 shadow-sm"></div>
+                    <span className="text-sm font-medium text-gray-700">
+                      Closed Days
+                    </span>
                   </div>
                 </div>
-                <Card className="min-w-md">
-                  <CardContent>
-                    <ScheduleCalendar
-                      initialView="dayGridMonth"
-                      headerToolbar={{ center: "" }}
-                      weekday="short"
-                      handleDateClick={handleDateClick}
-                      events={allEvents}
-                      aspectRatio={1.35}
-                      dayCellClassNames={(arg) => {
-                        const dow = arg.date.getDay(); // 0 = Sunday, 1 = Monday...
-                        return dayOffNumbers.includes(dow)
-                          ? ["fc-day-off"]
-                          : [];
-                      }}
-                    />
-                  </CardContent>
-                </Card>
               </div>
+              <Card className="min-w-md">
+                <CardContent>
+                  <ScheduleCalendar
+                    initialView="dayGridMonth"
+                    headerToolbar={{ center: "" }}
+                    weekday="short"
+                    handleDateClick={handleDateClick}
+                    events={allEvents}
+                    aspectRatio={1.35}
+                    dayCellClassNames={(arg) => {
+                      const dow = arg.date.getDay(); // 0 = Sunday, 1 = Monday...
+                      return dayOffNumbers.includes(dow) ? ["fc-day-off"] : [];
+                    }}
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
-      </SidebarInset>
-
+      </div>
       <AdminDialog
         open={openDialog}
         onOpenChange={setOpenDialog}
@@ -177,6 +163,6 @@ export default function Schedule() {
         onSubmit={isClosed ? handleUnmarkClosedDays : submitClosedDays}
         loading={isLoading}
       ></AdminDialog>
-    </SidebarProvider>
+    </SidebarInset>
   );
 }
