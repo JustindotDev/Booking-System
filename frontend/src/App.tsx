@@ -4,12 +4,14 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader2 } from "lucide-react";
 
-import LoginPage from "@/app/admin/authentication/login-page";
-import SignupPage from "@/app/admin/authentication/signup-page";
+import LoginPage from "@/app/admin/auth/login-page";
+import SignupPage from "@/app/admin/auth/signup-page";
 import Dashboard from "@/app/admin/dashboard/page";
 import { useAuthStore } from "@/store/useAuthStore";
 import Services from "./app/admin/services/page";
 import Schedule from "./app/admin/schedule/page";
+import ProtectedRoute from "./components/auth/protected-routes";
+import AdminLayout from "@/app/admin/page";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -30,18 +32,17 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route
-          path="/admin/dashboard"
-          element={authUser ? <Dashboard /> : <Navigate to="/admin/login" />}
-        />
-        <Route
-          path="/admin/services"
-          element={authUser ? <Services /> : <Navigate to="/admin/login" />}
-        />
-        <Route
-          path="/admin/schedule"
-          element={authUser ? <Schedule /> : <Navigate to="/admin/login" />}
-        />
+
+        {/* Protected Pages */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="services" element={<Services />} />
+            <Route path="schedule" element={<Schedule />} />
+          </Route>
+        </Route>
+
+        {/* Public Pages */}
         <Route
           path="/admin/signup"
           element={
