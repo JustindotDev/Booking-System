@@ -12,6 +12,7 @@ import Services from "./app/admin/services/page";
 import Schedule from "./app/admin/schedule/page";
 import ProtectedRoute from "./components/auth/protected-routes";
 import AdminLayout from "@/app/admin/page";
+import Profile from "./app/admin/profile/page";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -39,6 +40,7 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="services" element={<Services />} />
             <Route path="schedule" element={<Schedule />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Route>
 

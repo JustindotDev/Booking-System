@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -36,6 +37,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { logout } = useAuthStore();
+  const navigate = useNavigate();
 
   return (
     <SidebarMenu>
@@ -81,7 +83,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/admin/profile")}>
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
