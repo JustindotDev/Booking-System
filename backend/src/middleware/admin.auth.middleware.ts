@@ -27,7 +27,7 @@ export const ProtectRoute = async (
 
     const { data, error } = await supabase
       .from("admin")
-      .select("id, username, email")
+      .select("id, username, email, profile_pic")
       .eq("id", decoded.id)
       .single();
 

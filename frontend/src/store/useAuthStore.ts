@@ -16,6 +16,7 @@ type Login = {
 export type User = {
   id: string;
   username?: string;
+  profile_pic?: string;
   email: string;
 };
 
@@ -25,12 +26,14 @@ type AuthStore = {
   isSigningUp: boolean;
   isLoggingIn: boolean;
   isLoggingOut: boolean;
+  isUploading: boolean;
   passwordError: string;
   clearPasswordError: () => void;
   checkAuth: () => Promise<void>;
   signUp: (data: Signup, navigate: NavigateFunction) => Promise<void>;
   login: (data: Login, navigate: NavigateFunction) => Promise<void>;
   logout: () => Promise<void>;
+  uploadProfilePic: (data: string | null | ArrayBuffer) => Promise<void>;
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -39,6 +42,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   isSigningUp: false,
   isLoggingIn: false,
   isLoggingOut: false,
+  isUploading: false,
 
   passwordError: "",
 
@@ -109,6 +113,31 @@ export const useAuthStore = create<AuthStore>((set) => ({
         toast.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
+    }
+  },
+
+  uploadProfilePic: async (data) => {
+    set({ isUploading: true });
+    try {
+      const res = await axiosInstance.put("/admin-auth/upload-profile-pic", {
+        profile_pic: data,
+      });
+      set((state) => ({
+        authUser: state.authUser
+          ? {
+              ...state.authUser,
+              profile_pic: res.data.publicUrl,
+            }
+          : null,
+      }));
+      toast.success(res.data.message);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        toast.error(error.response?.data.message);
+      }
+      console.error("Error caught:", error);
+    } finally {
+      set({ isUploading: false });
     }
   },
 }));

@@ -1,47 +1,111 @@
+import { useRef } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset } from "@/components/ui/sidebar";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Camera } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Loader2 } from "lucide-react";
+import { SquarePen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Profile = () => {
+  const { authUser, isUploading, uploadProfilePic } = useAuthStore();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleUploadProfilePic = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files[0]) {
+      const file = files[0];
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onload = async () => {
+        const base64Image = reader.result;
+        await uploadProfilePic(base64Image);
+      };
+    }
+    return;
+  };
   return (
     <SidebarInset>
       <SiteHeader title="My Profile" />
       <div className="flex flex-1 flex-col">
         <div className="@container/main flex flex-1 flex-col gap-2">
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-            {/* TODO: Card Placeholder for profile */}
-            <div className="px-4 lg:px-6 flex justify-center">
-              <div className="w-11/12  items-center ">
-                <div
-                  className="   
-              flex flex-col items-start gap-3 w-fit
-              bg-white/80 px-3 py-2 rounded-lg shadow-sm
-              md:flex-row md:gap-6"
-                >
-                  {/* Day-Off */}
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-gray-400"></div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Day-Off
-                    </span>
+            <div className="px-4 lg:px-6 flex flex-col space-y-4">
+              {/* TODO: Card Placeholder for profile */}
+              <Card>
+                <CardContent className="flex items-center">
+                  <div className="relative">
+                    <Avatar className="w-24 h-24 mr-4 ">
+                      <AvatarImage src={authUser?.profile_pic} />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    {isUploading ? (
+                      // Spinner overlay
+                      <div className="absolute bottom-0 right-4 bg-white rounded-full p-1">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+                      </div>
+                    ) : (
+                      <Camera
+                        className="h-6 w-6 absolute text-gray-500 bottom-0 right-4 bg-white rounded-full p-1 transition-transform duration-200 ease-in-out hover:bg-gray-100 hover:scale-105 cursor-pointer"
+                        onClick={handleClick}
+                      />
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={handleUploadProfilePic}
+                      disabled={isUploading}
+                    ></input>
                   </div>
-
-                  {/* Closed Days */}
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-red-300"></div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Closed Days
-                    </span>
+                  <div>
+                    <h2 className="scroll-m-20  text-lg font-semibold tracking-tight first:mt-0">
+                      {authUser?.username}
+                    </h2>
+                    <p className="text-sm text-gray-500">Admin</p>
+                    <p className="text-sm text-gray-500">{authUser?.email}</p>
                   </div>
-
-                  {/* Events */}
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-blue-400"></div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Events
-                    </span>
+                </CardContent>
+              </Card>
+              <Card className="gap-3">
+                <CardHeader className="flex items-center justify-between ">
+                  <CardTitle>Personal Information</CardTitle>
+                  <Button variant="outline" className="cursor-pointer">
+                    Edit <SquarePen className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <Separator className="mb-4" />
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <p className="text-gray-500 text-sm">Username</p>
+                      <p>{authUser?.username}</p>
+                    </div>
+                    <p className="text-gray-500 text-sm">Facebook</p>
+                    <div>
+                      <p className="text-gray-500 text-sm">Email Address</p>
+                      <p className="font-sans">{authUser?.email}</p>
+                    </div>
+                    <p className="text-gray-500 text-sm">Phone Number</p>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
