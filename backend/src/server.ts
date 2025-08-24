@@ -8,6 +8,8 @@ import Appointments from "./routes/appointments.routes";
 
 const app: Application = express();
 
+app.use(express.json({ limit: "2mb" })); // increase as needed
+app.use(express.urlencoded({ limit: "2mb", extended: true }));
 app.use(
   cors({
     origin: "http://localhost:5173",

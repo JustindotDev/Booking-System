@@ -3,6 +3,7 @@ import supabase from "../config/db";
 import { validatePassword } from "../util/password.validator";
 import { setTokens } from "../util/set.token";
 import { AuthenticatedRequest } from "../types/express";
+import { decode } from "base64-arraybuffer";
 
 export const Signup = async (
   req: Request,
@@ -128,7 +129,7 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
 
     const { data: profile, error: profileError } = await supabase
       .from("admin")
-      .select("username")
+      .select("username, profile_pic")
       .eq("id", data.user.id)
       .single();
 
@@ -145,6 +146,7 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
       user: {
         id: data.user.id,
         username: profile?.username,
+        profile_pic: profile?.profile_pic,
         email,
       },
     });
@@ -198,6 +200,64 @@ export const Logout = async (
     return res
       .status(500)
       .json({ message: "Something went wrong in logout controller." });
+  }
+};
+
+export const UploadProfile = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { profile_pic } = req.body;
+    if (!profile_pic) {
+      return res.status(400).json({ message: "Please select an image." });
+    }
+
+    const userId = req.user?.id;
+    const username = req.user?.username;
+
+    const base64Data = profile_pic.replace(/^data:image\/\w+;base64,/, "");
+    const buffer = decode(base64Data);
+
+    const filePath = `${username}/${Date.now()}.png`;
+
+    const { data, error } = await supabase.storage
+      .from("profile-picture")
+      .upload(filePath, buffer, {
+        contentType: "image/png",
+        cacheControl: "3600",
+        upsert: true,
+      });
+
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    const { data: publicUrl } = supabase.storage
+      .from("profile-picture")
+      .getPublicUrl(filePath);
+
+    const { error: userError } = await supabase
+      .from("admin")
+      .update({ profile_pic: publicUrl.publicUrl })
+      .eq("id", userId)
+      .select();
+
+    if (userError) return res.status(400).json({ message: userError.message });
+
+    return res.status(201).json({
+      message: "Profile saved succesffully",
+      publicUrl: publicUrl.publicUrl,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("UploadProfile error:", error.message);
+    } else {
+      console.error("UploadProfile error:", error);
+    }
+    return res
+      .status(500)
+      .json({ message: "Something went wrong in UploadProfile controller." });
   }
 };
 
