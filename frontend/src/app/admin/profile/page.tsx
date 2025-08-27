@@ -1,13 +1,7 @@
 import { useRef } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset } from "@/components/ui/sidebar";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Camera } from "lucide-react";
@@ -86,7 +80,11 @@ const Profile = () => {
               <Card className="gap-3">
                 <CardHeader className="flex items-center justify-between ">
                   <CardTitle>Personal Information</CardTitle>
-                  <Button variant="outline" className="cursor-pointer">
+                  <Button
+                    variant="outline"
+                    className="cursor-pointer"
+                    size={"sm"}
+                  >
                     Edit <SquarePen className="h-4 w-4" />
                   </Button>
                 </CardHeader>
@@ -103,6 +101,32 @@ const Profile = () => {
                       <p className="font-sans">{authUser?.email}</p>
                     </div>
                     <p className="text-gray-500 text-sm">Phone Number</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="gap-3 ">
+                <CardHeader className="flex items-center justify-between ">
+                  <CardTitle>Address</CardTitle>
+                  <Button
+                    variant="outline"
+                    className="cursor-pointer"
+                    size={"sm"}
+                  >
+                    Edit <SquarePen className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <Separator className="mb-4" />
+                  <div className="flex gap-36">
+                    <div>
+                      <p className="text-gray-500 text-sm">Province</p>
+                      <p>{authUser?.username}</p>
+                    </div>
+                    <p className="text-gray-500 text-sm">City/Municipality</p>
+                    <div>
+                      <p className="text-gray-500 text-sm">Barangay</p>
+                      <p className="font-sans">{authUser?.email}</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
