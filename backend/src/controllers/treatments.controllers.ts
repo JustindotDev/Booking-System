@@ -122,9 +122,7 @@ export const UpdateTreatments = async (
 
     if (error) {
       console.error("Update error:", error);
-      return res
-        .status(500)
-        .json({ message: "Failed to update treatment.", error: error.message });
+      return res.status(500).json({ message: error.message });
     }
 
     if (!data || data.length === 0) {
