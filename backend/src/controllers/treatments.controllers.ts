@@ -105,13 +105,24 @@ export const UpdateTreatments = async (
     const { id } = req.params;
     const { name, image, price } = req.body;
 
+    const { data: current, error: fetchError } = await supabase
+      .from("treatments")
+      .select("name, image, price")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !current) {
+      return res.status(404).json({ message: "Treatment not found" });
+    }
+
     const updates: TreatmentUpdate = {};
-    if (name) updates.name = name;
-    if (image) updates.image = image;
-    if (price !== undefined) updates.price = price;
+    if (name && name !== current.name) updates.name = name;
+    if (image && image !== current.image) updates.image = image;
+    if (price && price !== undefined && price !== current.price)
+      updates.price = price;
 
     if (Object.keys(updates).length === 0) {
-      return res.status(400).json({ message: "No fields provided to update." });
+      return res.status(400).json({ message: "No changes detected." });
     }
 
     const { data, error } = await supabase
