@@ -20,6 +20,14 @@ export type User = {
   email: string;
 };
 
+type ContactsType = {
+  facebook: string;
+  phone_number: string;
+  province: string;
+  city: string;
+  barangay: string;
+};
+
 type AuthStore = {
   authUser: User | null;
   isCheckingAuth: boolean;
@@ -34,6 +42,7 @@ type AuthStore = {
   login: (data: Login, navigate: NavigateFunction) => Promise<void>;
   logout: () => Promise<void>;
   uploadProfilePic: (data: string | null | ArrayBuffer) => Promise<void>;
+  editContacts: (id: string, data: ContactsType) => Promise<void>;
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -138,6 +147,18 @@ export const useAuthStore = create<AuthStore>((set) => ({
       console.error("Error caught:", error);
     } finally {
       set({ isUploading: false });
+    }
+  },
+
+  editContacts: async (id, data) => {
+    try {
+      const res = await axiosInstance.put(`/contacts-info/${id}`, data);
+      toast.success(res.data.message);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        toast.error(error.response?.data.message);
+      }
+      console.error("Error caught:", error);
     }
   },
 }));

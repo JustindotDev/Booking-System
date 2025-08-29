@@ -24,6 +24,6 @@ app.use("/api/admin-auth/", AdminAuthRoutes);
 app.use("/api/treatments/", TreatmentRoutes);
 app.use("/api/schedule", SalonScheduleRoutes);
 app.use("/api/appointments", AppointmentsRoutes);
-app.use("/api/contacts_info", ContactsRoutes);
+app.use("/api/contacts-info", ContactsRoutes);
 
 export default app;

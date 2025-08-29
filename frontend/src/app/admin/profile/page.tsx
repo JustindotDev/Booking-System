@@ -18,6 +18,8 @@ const Profile = () => {
     fileInputRef.current?.click();
   };
 
+  const handleEditButton = () => {};
+
   const handleUploadProfilePic = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files[0]) {
@@ -84,6 +86,7 @@ const Profile = () => {
                     variant="outline"
                     className="cursor-pointer"
                     size={"sm"}
+                    onClick={handleEditButton}
                   >
                     Edit <SquarePen className="h-4 w-4" />
                   </Button>
@@ -111,6 +114,7 @@ const Profile = () => {
                     variant="outline"
                     className="cursor-pointer"
                     size={"sm"}
+                    onClick={handleEditButton}
                   >
                     Edit <SquarePen className="h-4 w-4" />
                   </Button>
