@@ -23,6 +23,7 @@ interface AdminDialogProps {
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   closeRef?: RefObject<HTMLButtonElement | null>;
   loading?: boolean;
+  isdisabled?: boolean;
 }
 
 export function AdminDialog({
@@ -35,6 +36,7 @@ export function AdminDialog({
   onSubmit,
   closeRef,
   loading = false,
+  isdisabled = false,
 }: AdminDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -53,7 +55,7 @@ export function AdminDialog({
               </Button>
             </DialogClose>
 
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || isdisabled}>
               {loading ? (
                 <Loader2 className="h-8 w-8 animate-spin text-white" />
               ) : (

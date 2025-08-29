@@ -19,7 +19,9 @@ export default function Services() {
   const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(
     null
   );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [formValues, setFormValues] = useState({ name: "", price: "" });
+  const [ischanged, setIsChanged] = useState<boolean>(false);
 
   useEffect(() => {
     fetchTreatments();
@@ -35,18 +37,40 @@ export default function Services() {
 
   const handleEdit = (treatment: Treatment) => {
     setSelectedTreatment(treatment);
+    setFormValues({
+      name: treatment.name,
+      price: treatment.price.toString(),
+    });
+    setIsChanged(true);
     setIsDialogOpen(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const newValues = { ...formValues, [name]: value };
+    setFormValues(newValues);
+
+    if (
+      newValues.name !== selectedTreatment?.name ||
+      parseFloat(newValues.price) !== selectedTreatment?.price
+    ) {
+      setIsChanged(false);
+    } else if (
+      newValues.name === selectedTreatment?.name ||
+      parseFloat(newValues.price) === selectedTreatment?.price
+    ) {
+      setIsChanged(true);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    const price = parseFloat(formData.get("price") as string);
-
     if (!selectedTreatment?.id) return;
 
-    await updateTreatments(selectedTreatment.id, { name, price });
+    await updateTreatments(selectedTreatment.id, {
+      name: formValues.name,
+      price: parseFloat(formValues.price),
+    });
 
     setIsDialogOpen(false);
     setSelectedTreatment(null);
@@ -72,6 +96,9 @@ export default function Services() {
         selectedTreatment={selectedTreatment}
         onSubmit={handleSubmit}
         loading={isLoading}
+        isdisabled={ischanged}
+        formValues={formValues}
+        onInputChange={handleInputChange}
       />
     </SidebarInset>
   );

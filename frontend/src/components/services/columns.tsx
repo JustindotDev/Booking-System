@@ -76,6 +76,9 @@ interface EditDialogProps {
   selectedTreatment: Treatment | null;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   loading: boolean;
+  isdisabled: boolean;
+  formValues: { name: string; price: string };
+  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const EditDialog = ({
@@ -84,6 +87,9 @@ export const EditDialog = ({
   selectedTreatment,
   onSubmit,
   loading = false,
+  isdisabled = false,
+  formValues,
+  onInputChange,
 }: EditDialogProps) => {
   return (
     <AdminDialog
@@ -93,6 +99,7 @@ export const EditDialog = ({
       description="Update the treatment details below."
       onSubmit={onSubmit}
       loading={loading}
+      isdisabled={isdisabled}
     >
       <div className="grid gap-4">
         <div className="grid gap-2">
@@ -100,7 +107,9 @@ export const EditDialog = ({
           <Input
             id="name"
             name="name"
+            value={formValues.name}
             defaultValue={selectedTreatment?.name}
+            onChange={onInputChange}
             required
           />
         </div>
@@ -109,8 +118,10 @@ export const EditDialog = ({
           <Input
             id="price"
             name="price"
+            value={formValues.price}
             type="text"
             defaultValue={selectedTreatment?.price}
+            onChange={onInputChange}
             required
           />
         </div>
