@@ -2,8 +2,8 @@ import express from "express";
 
 import {
   GetContactsInfo,
-  AddContactsInfo,
   UpdateContactsInfo,
+  UpdateAddressInfo,
 } from "../controllers/contacts.info.controllers";
 import { ProtectRoute } from "../middleware/admin.auth.middleware";
 
@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get("/", GetContactsInfo);
 
-router.post("/add-contacts", ProtectRoute, AddContactsInfo);
-router.put("/:id", ProtectRoute, UpdateContactsInfo);
+router.put("/contacts/:id", ProtectRoute, UpdateContactsInfo);
+router.put("/address/:id", ProtectRoute, UpdateAddressInfo);
 
 export default router;

@@ -1,14 +1,14 @@
 import { useRef } from "react";
+import Contacts from "@/components/profile/profile-contacts-card";
+import Address from "@/components/profile/profile-address-card";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset } from "@/components/ui/sidebar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Camera } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+
 import { Loader2 } from "lucide-react";
-import { SquarePen } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const Profile = () => {
   const { authUser, isUploading, uploadProfilePic } = useAuthStore();
@@ -17,8 +17,6 @@ const Profile = () => {
   const handleClick = () => {
     fileInputRef.current?.click();
   };
-
-  const handleEditButton = () => {};
 
   const handleUploadProfilePic = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -79,61 +77,12 @@ const Profile = () => {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="gap-3">
-                <CardHeader className="flex items-center justify-between ">
-                  <CardTitle>Personal Information</CardTitle>
-                  <Button
-                    variant="outline"
-                    className="cursor-pointer"
-                    size={"sm"}
-                    onClick={handleEditButton}
-                  >
-                    Edit <SquarePen className="h-4 w-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <Separator className="mb-4" />
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                      <p className="text-gray-500 text-sm">Username</p>
-                      <p>{authUser?.username}</p>
-                    </div>
-                    <p className="text-gray-500 text-sm">Facebook</p>
-                    <div>
-                      <p className="text-gray-500 text-sm">Email Address</p>
-                      <p className="font-sans">{authUser?.email}</p>
-                    </div>
-                    <p className="text-gray-500 text-sm">Phone Number</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="gap-3 ">
-                <CardHeader className="flex items-center justify-between ">
-                  <CardTitle>Address</CardTitle>
-                  <Button
-                    variant="outline"
-                    className="cursor-pointer"
-                    size={"sm"}
-                    onClick={handleEditButton}
-                  >
-                    Edit <SquarePen className="h-4 w-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <Separator className="mb-4" />
-                  <div className="flex gap-36">
-                    <div>
-                      <p className="text-gray-500 text-sm">Province</p>
-                      <p>{authUser?.username}</p>
-                    </div>
-                    <p className="text-gray-500 text-sm">City/Municipality</p>
-                    <div>
-                      <p className="text-gray-500 text-sm">Barangay</p>
-                      <p className="font-sans">{authUser?.email}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+
+              {/* <---- Contacts Sections ----> */}
+              <Contacts />
+
+              {/* <---- Address Sections ----> */}
+              <Address />
             </div>
           </div>
         </div>
