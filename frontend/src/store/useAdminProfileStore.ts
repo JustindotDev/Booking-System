@@ -18,7 +18,9 @@ type ContactsInfoType = {
   id: string;
   facebook: string;
   phone_number: string;
-  address: string;
+  province: string;
+  city: string;
+  barangay: string;
 };
 
 type AdminProfileStore = {
@@ -40,7 +42,6 @@ export const useAdminProfileStore = create<AdminProfileStore>((set) => ({
     set({ isLoading: true });
     try {
       const res = await axiosInstance.get("/contacts-info/");
-      console.log(res.data.contacts_info);
       set({ contactsInfo: res.data.contacts_info });
     } catch (error) {
       if (isAxiosError(error)) {
@@ -55,10 +56,12 @@ export const useAdminProfileStore = create<AdminProfileStore>((set) => ({
   updateContacts: async (id, data) => {
     set({ isLoading: true });
     try {
-      const res = await axiosInstance.put(
-        `/contacts-info/contacts/${id}`,
-        data
-      );
+      let res;
+      if (id) {
+        res = await axiosInstance.put(`/contacts-info/contacts/${id}`, data);
+      } else {
+        res = await axiosInstance.post(`/contacts-info/contacts/`, data);
+      }
       set({ contactsInfo: res.data.data });
       toast.success(res.data.message);
       return true;

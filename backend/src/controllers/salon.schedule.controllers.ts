@@ -37,7 +37,7 @@ export const DayOffSchedule = async (
       return res.status(400).json({ message: "Please choose a date." });
     }
 
-    const { data: existing, error: findError } = await supabase
+    const { data: existing } = await supabase
       .from("salon_schedule")
       .select()
       .eq("is_closed", false)

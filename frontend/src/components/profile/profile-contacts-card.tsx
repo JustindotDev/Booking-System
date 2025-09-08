@@ -14,6 +14,9 @@ const Contacts = () => {
   const [formValues, setFormValues] = useState({
     facebook: "",
     phone_number: "",
+    province: "",
+    city: "",
+    barangay: "",
   });
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const { authUser } = useAuthStore();
@@ -27,8 +30,7 @@ const Contacts = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // normalize the name if needed
-    const key = name === "phone-number" ? "phone_number" : name;
+    const key = name;
 
     setFormValues((prev) => ({
       ...prev,
@@ -80,12 +82,48 @@ const Contacts = () => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="phone-number">Phone Number</Label>
+                <Label htmlFor="phone_number">Phone Number</Label>
                 <Input
-                  id="phone-number"
-                  name="phone-number"
+                  id="phone_number"
+                  name="phone_number"
                   type="text"
                   value={formValues.phone_number}
+                  // defaultValue={selectedTreatment?.price}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="province">Province</Label>
+                <Input
+                  id="province"
+                  name="province"
+                  type="text"
+                  value={formValues.province}
+                  // defaultValue={selectedTreatment?.price}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  name="city"
+                  type="text"
+                  value={formValues.city}
+                  // defaultValue={selectedTreatment?.price}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="barangay">Barangay</Label>
+                <Input
+                  id="barangay"
+                  name="barangay"
+                  type="text"
+                  value={formValues.barangay}
                   // defaultValue={selectedTreatment?.price}
                   onChange={handleChange}
                   required
@@ -112,6 +150,22 @@ const Contacts = () => {
             <div>
               <p className="text-gray-500 text-sm">Phone Number</p>
               <p>{contactsInfo?.phone_number}</p>
+            </div>
+          </div>
+          <CardTitle className="mt-6 mb-2">Address</CardTitle>
+          <Separator className="mb-4" />
+          <div className="flex gap-36">
+            <div>
+              <p className="text-gray-500 text-sm">Province</p>
+              <p>{contactsInfo?.province}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm">City/Municipality</p>
+              <p>{contactsInfo?.city}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm">Barangay</p>
+              <p>{contactsInfo?.barangay}</p>
             </div>
           </div>
         </CardContent>
