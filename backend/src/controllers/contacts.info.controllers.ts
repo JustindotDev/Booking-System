@@ -17,11 +17,42 @@ export const GetContactsInfo = async (
 
     if (error) return res.status(400).json({ message: error.message });
 
-    return res.status(200).json({ contacts_info: data });
+    return res.status(200).json({ contacts_info: data[0] });
   } catch (error: unknown) {
     console.error("Get Contacts  error:", error);
     return res.status(500).json({
       message: "Something went wrong in GetContactInfo controller.",
+    });
+  }
+};
+
+export const InsertContactsInfo = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<Response> => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized - No User" });
+  }
+
+  const { facebook, phone_number } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from("contacts_info")
+      .insert({ facebook, phone_number })
+      .select();
+
+    if (error) {
+      return res.status(500).json({ message: error.message });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Contacts inserted successfully.", data });
+  } catch (error: unknown) {
+    console.error("Update Contacts  error:", error);
+    return res.status(500).json({
+      message: "Something went wrong in InsertContactsInfo controller.",
     });
   }
 };
@@ -40,7 +71,7 @@ export const UpdateContactsInfo = async (
   try {
     const { data, error } = await supabase
       .from("contacts_info")
-      .upsert({ facebook, phone_number })
+      .update({ facebook, phone_number })
       .eq("id", id)
       .select();
 
@@ -59,7 +90,7 @@ export const UpdateContactsInfo = async (
   }
 };
 
-export const UpdateAddressInfo = async (
+export const UpsertAddressInfo = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {

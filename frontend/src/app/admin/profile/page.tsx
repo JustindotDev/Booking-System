@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import Contacts from "@/components/profile/profile-contacts-card";
-import Address from "@/components/profile/profile-address-card";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -80,9 +79,6 @@ const Profile = () => {
 
               {/* <---- Contacts Sections ----> */}
               <Contacts />
-
-              {/* <---- Address Sections ----> */}
-              <Address />
             </div>
           </div>
         </div>
