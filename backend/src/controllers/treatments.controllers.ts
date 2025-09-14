@@ -152,7 +152,7 @@ export const UpdateTreatments = async (
 };
 
 export const DeleteTreatments = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<Response> => {
   try {

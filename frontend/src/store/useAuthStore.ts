@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { axiosInstance } from "@/lib/axios-instance";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
+import { jwtDecode } from "jwt-decode";
 
 type Signup = Login & {
   username: string;
@@ -23,6 +24,7 @@ export type User = {
 type AuthStore = {
   authUser: User | null;
   isCheckingAuth: boolean;
+  isAuthenticated: boolean | null;
   isSigningUp: boolean;
   isLoggingIn: boolean;
   isLoggingOut: boolean;
@@ -32,13 +34,41 @@ type AuthStore = {
   checkAuth: () => Promise<void>;
   signUp: (data: Signup, navigate: NavigateFunction) => Promise<void>;
   login: (data: Login, navigate: NavigateFunction) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (navigate: NavigateFunction) => Promise<void>;
   uploadProfilePic: (data: string | null | ArrayBuffer) => Promise<void>;
 };
+
+function scheduleRefresh(token: string) {
+  const { exp } = jwtDecode<{ exp: number }>(token);
+  const expiresIn = exp * 1000 - Date.now();
+
+  // refresh 30s before expiry
+  setTimeout(async () => {
+    try {
+      const res = await axiosInstance.post("/admin-auth/refresh");
+      const newAccessToken = res.data.accessToken;
+
+      // ✅ Update auth store directly (no /check call)
+      useAuthStore.setState((state) => ({
+        ...state,
+        isAuthenticated: true,
+        // optionally store token if you keep it in state
+      }));
+
+      // Reschedule again
+      scheduleRefresh(newAccessToken);
+    } catch (err) {
+      console.error("Token refresh failed", err);
+      // ❌ Refresh failed → logout user
+      useAuthStore.setState({ authUser: null, isAuthenticated: false });
+    }
+  }, expiresIn - 30000);
+}
 
 export const useAuthStore = create<AuthStore>((set) => ({
   authUser: null,
   isCheckingAuth: false,
+  isAuthenticated: null,
   isSigningUp: false,
   isLoggingIn: false,
   isLoggingOut: false,
@@ -52,13 +82,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({ isCheckingAuth: true });
     try {
       const res = await axiosInstance.get("/admin-auth/check");
-      set({ authUser: res.data });
+      set({ authUser: res.data.user, isAuthenticated: true });
+      scheduleRefresh(res.data.accessToken);
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         console.error(error.response?.data.message);
       }
       console.error("Error caught:", error);
-      set({ authUser: null });
+      set({ authUser: null, isAuthenticated: false });
     } finally {
       set({ isCheckingAuth: false });
     }
@@ -89,8 +120,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/admin-auth/login", data);
-      set({ authUser: res.data.user });
+      set({ authUser: res.data.user, isAuthenticated: true });
       toast.success(res.data.message);
+      scheduleRefresh(res.data.accessToken);
       navigate("/admin/dashboard");
     } catch (error: unknown) {
       if (isAxiosError(error)) {
@@ -102,11 +134,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
-  logout: async () => {
+  logout: async (navigate: NavigateFunction) => {
     try {
       const res = await axiosInstance.post("/admin-auth/logout");
       set({ authUser: null });
-
+      navigate("/admin/login");
       toast.success(res.data.message);
     } catch (error: unknown) {
       if (isAxiosError(error)) {

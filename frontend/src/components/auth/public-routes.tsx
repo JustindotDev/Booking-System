@@ -3,7 +3,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
-function ProtectedRoute() {
+export default function PublicRoute() {
   const { isCheckingAuth, isAuthenticated, checkAuth } = useAuthStore();
 
   useEffect(() => {
@@ -18,7 +18,9 @@ function ProtectedRoute() {
     );
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/admin/login" replace />;
+  return isAuthenticated ? (
+    <Navigate to="/admin/dashboard" replace />
+  ) : (
+    <Outlet />
+  );
 }
-
-export default ProtectedRoute;
