@@ -5,5 +5,6 @@ export interface AuthenticatedRequest extends Request {
     id: string;
     username: string;
     email: string;
+    profile_pic: string;
   };
 }

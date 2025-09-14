@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import supabase from "../config/db";
 import { validatePassword } from "../util/password.validator";
-import { setTokens } from "../util/set.token";
-import { AuthenticatedRequest } from "../types/express";
+import { generateAccessToken, generateRefreshToken } from "../util/token";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { decode } from "base64-arraybuffer";
+import { AuthenticatedRequest } from "../types/express";
 
 export const Signup = async (
   req: Request,
@@ -139,7 +140,29 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
       });
     }
 
-    setTokens(res, data.user, data.session);
+    const userPayload = {
+      id: data.user.id,
+      username: profile?.username || "",
+      email: email,
+      profile_pic: profile.profile_pic,
+    };
+
+    const accessToken = generateAccessToken(userPayload);
+    const refreshToken = generateRefreshToken(userPayload);
+
+    res.cookie("access_token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development",
+      sameSite: "strict",
+      maxAge: 60 * 1000, // 1 minute (match JWT expiry)
+    });
+
+    res.cookie("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
     return res.status(200).json({
       message: "Logged in Successfully!",
@@ -149,6 +172,7 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
         profile_pic: profile?.profile_pic,
         email,
       },
+      accessToken,
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -172,12 +196,6 @@ export const Logout = async (
     if (error) {
       return res.status(401).json({ message: error.message });
     }
-
-    res.clearCookie("jwt", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
 
     res.clearCookie("access_token", {
       httpOnly: true,
@@ -266,7 +284,9 @@ export const CheckAuth = async (
   res: Response
 ): Promise<Response> => {
   try {
-    return res.status(200).json(req.user);
+    return res
+      .status(200)
+      .json({ user: req.user, accessToken: req.cookies["access_token"] });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("checkAuth error:", error.message);
@@ -276,5 +296,46 @@ export const CheckAuth = async (
     return res
       .status(500)
       .json({ message: "Something went wrong in checkAuth controller." });
+  }
+};
+
+export const RefreshAccessToken = (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies["refresh_token"];
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "No refresh token provided" });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET as string
+    ) as JwtPayload;
+
+    if (!decoded) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    // Generate new access token
+    const newAccessToken = generateAccessToken({
+      id: decoded.id,
+      username: decoded.username,
+      email: decoded.email,
+      profile_pic: decoded.profile_pic,
+    });
+
+    // Send new access token as cookie
+    res.cookie("access_token", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development",
+      sameSite: "strict",
+      maxAge: 60 * 1000, // 1 min
+    });
+
+    return res.json({ accessToken: newAccessToken });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    return res.status(403).json({ message: "Token refresh failed" });
   }
 };
