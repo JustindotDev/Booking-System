@@ -9,7 +9,7 @@ type UserPayload = {
 
 export const generateAccessToken = (user: UserPayload) => {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET as string, {
-    expiresIn: "1m", // 1 minute (short-lived)
+    expiresIn: "15m", // 15 minute (short-lived)
   });
 };
 

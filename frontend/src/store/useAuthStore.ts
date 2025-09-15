@@ -38,13 +38,22 @@ type AuthStore = {
   uploadProfilePic: (data: string | null | ArrayBuffer) => Promise<void>;
 };
 
+let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+
 function scheduleRefresh(token: string) {
   const { exp } = jwtDecode<{ exp: number }>(token);
   const expiresIn = exp * 1000 - Date.now();
 
+  if (expiresIn <= 60000) return;
+
   // refresh 30s before expiry
-  setTimeout(async () => {
+  refreshTimer = setTimeout(async () => {
     try {
+      // don’t refresh if logged out
+      if (useAuthStore.getState().authUser === null) {
+        return;
+      }
+
       const res = await axiosInstance.post("/admin-auth/refresh");
       const newAccessToken = res.data.accessToken;
 
@@ -55,14 +64,20 @@ function scheduleRefresh(token: string) {
         // optionally store token if you keep it in state
       }));
 
-      // Reschedule again
       scheduleRefresh(newAccessToken);
     } catch (err) {
-      console.error("Token refresh failed", err);
-      // ❌ Refresh failed → logout user
+      console.error("❌ Refresh failed:", err);
       useAuthStore.setState({ authUser: null, isAuthenticated: false });
+      stopRefresh();
     }
-  }, expiresIn - 30000);
+  }, expiresIn - 60000);
+}
+
+function stopRefresh() {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+  }
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -88,7 +103,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
       if (isAxiosError(error)) {
         console.error(error.response?.data.message);
       }
-      console.error("Error caught:", error);
       set({ authUser: null, isAuthenticated: false });
     } finally {
       set({ isCheckingAuth: false });
@@ -137,7 +151,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
   logout: async (navigate: NavigateFunction) => {
     try {
       const res = await axiosInstance.post("/admin-auth/logout");
-      set({ authUser: null });
+      set({ authUser: null, isAuthenticated: false });
+      stopRefresh();
       navigate("/admin/login");
       toast.success(res.data.message);
     } catch (error: unknown) {

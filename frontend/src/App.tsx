@@ -10,7 +10,6 @@ import Schedule from "./app/admin/schedule/page";
 import ProtectedRoute from "./components/auth/protected-routes";
 import AdminLayout from "@/app/admin/page";
 import Profile from "./app/admin/profile/page";
-import PublicRoute from "./components/auth/public-routes";
 
 function App() {
   return (
@@ -29,10 +28,8 @@ function App() {
         </Route>
 
         {/* Public Pages */}
-        <Route element={<PublicRoute />}>
-          <Route path="/admin/signup" element={<SignupPage />} />
-          <Route path="/admin/login" element={<LoginPage />} />
-        </Route>
+        <Route path="/admin/signup" element={<SignupPage />} />
+        <Route path="/admin/login" element={<LoginPage />} />
       </Routes>
       <Toaster position="top-center" richColors />
     </div>

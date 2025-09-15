@@ -154,7 +154,7 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development",
       sameSite: "strict",
-      maxAge: 60 * 1000, // 1 minute (match JWT expiry)
+      maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     res.cookie("refresh_token", refreshToken, {
@@ -330,7 +330,7 @@ export const RefreshAccessToken = (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development",
       sameSite: "strict",
-      maxAge: 60 * 1000, // 1 min
+      maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     return res.json({ accessToken: newAccessToken });
