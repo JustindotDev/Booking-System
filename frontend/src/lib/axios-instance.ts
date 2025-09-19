@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 export const axiosInstance = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -11,7 +10,12 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    const navigate = useNavigate();
+    if (
+      originalRequest?.url?.includes("/login") ||
+      originalRequest?.url?.includes("/signup")
+    ) {
+      return Promise.reject(error);
+    }
 
     if (
       error.response?.status === 401 &&
@@ -26,7 +30,7 @@ axiosInstance.interceptors.response.use(
         // Retry original request
         return axiosInstance(originalRequest);
       } catch {
-        navigate("/admin/login");
+        window.location.href = "/admin/login";
         return Promise.reject(null);
         // optionally clear auth state in store here if refresh fails
       }

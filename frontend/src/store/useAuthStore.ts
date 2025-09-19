@@ -134,15 +134,21 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/admin-auth/login", data);
+
+      if (res.data.success) {
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data.message);
+        return;
+      }
+
       set({ authUser: res.data.user, isAuthenticated: true });
-      toast.success(res.data.message);
       scheduleRefresh(res.data.accessToken);
       navigate("/admin/dashboard");
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data.message);
       }
-      console.error("Error caught:", error);
     } finally {
       set({ isLoggingIn: false });
     }

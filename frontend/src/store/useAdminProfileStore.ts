@@ -8,12 +8,6 @@ type ContactsType = {
   phone_number: string;
 };
 
-type AddressType = {
-  province: string;
-  city: string;
-  barangay: string;
-};
-
 type ContactsInfoType = {
   id: string;
   facebook: string;
@@ -31,7 +25,6 @@ type AdminProfileStore = {
     id: string | undefined,
     data: ContactsType
   ) => Promise<boolean>;
-  updateAddress: (id: string, data: AddressType) => Promise<void>;
 };
 
 export const useAdminProfileStore = create<AdminProfileStore>((set) => ({
@@ -71,21 +64,6 @@ export const useAdminProfileStore = create<AdminProfileStore>((set) => ({
       }
       console.error("Error caught:", error);
       return false;
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-  updateAddress: async (id, data) => {
-    set({ isLoading: true });
-    try {
-      const res = await axiosInstance.put(`/contacts-info/address/${id}`, data);
-      set({ contactsInfo: res.data.data });
-      toast.success(res.data.message);
-    } catch (error) {
-      if (isAxiosError(error)) {
-        toast.error(error.response?.data.message);
-      }
-      console.error("Error caught:", error);
     } finally {
       set({ isLoading: false });
     }

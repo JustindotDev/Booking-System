@@ -107,7 +107,8 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
       .single();
 
     if (!userData) {
-      return res.status(401).json({
+      return res.status(200).json({
+        success: false,
         message: "Email not found",
       });
     }
@@ -119,11 +120,13 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
 
     if (error) {
       if (error.message.includes("Invalid login credentials")) {
-        return res.status(401).json({
+        return res.status(200).json({
+          success: false,
           message: "Incorrect password",
         });
       }
-      return res.status(401).json({
+      return res.status(200).json({
+        success: false,
         message: error.message,
       });
     }
@@ -165,6 +168,7 @@ export const Login = async (req: Request, res: Response): Promise<Response> => {
     });
 
     return res.status(200).json({
+      success: true,
       message: "Logged in Successfully!",
       user: {
         id: data.user.id,
