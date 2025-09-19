@@ -34,12 +34,12 @@ export const InsertContactsInfo = async (
     return res.status(401).json({ message: "Unauthorized - No User" });
   }
 
-  const { facebook, phone_number } = req.body;
+  const { facebook, phone_number, province, city, barangay } = req.body;
 
   try {
     const { data, error } = await supabase
       .from("contacts_info")
-      .insert({ facebook, phone_number })
+      .insert({ facebook, phone_number, province, city, barangay })
       .select();
 
     if (error) {
@@ -48,7 +48,7 @@ export const InsertContactsInfo = async (
 
     return res
       .status(200)
-      .json({ message: "Contacts inserted successfully.", data });
+      .json({ message: "Contacts Added successfully.", data });
   } catch (error: unknown) {
     console.error("Update Contacts  error:", error);
     return res.status(500).json({
@@ -66,12 +66,12 @@ export const UpdateContactsInfo = async (
   }
 
   const { id } = req.params;
-  const { facebook, phone_number } = req.body;
+  const { facebook, phone_number, province, city, barangay } = req.body;
 
   try {
     const { data, error } = await supabase
       .from("contacts_info")
-      .update({ facebook, phone_number })
+      .update({ facebook, phone_number, province, city, barangay })
       .eq("id", id)
       .select();
 
