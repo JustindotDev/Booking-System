@@ -93,7 +93,6 @@ export default function Services() {
       <EditDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        selectedTreatment={selectedTreatment}
         onSubmit={handleSubmit}
         loading={isLoading}
         isdisabled={ischanged}

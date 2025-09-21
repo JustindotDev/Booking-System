@@ -73,7 +73,6 @@ export const getColumns = (
 interface EditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedTreatment: Treatment | null;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   loading: boolean;
   isdisabled: boolean;
@@ -84,7 +83,6 @@ interface EditDialogProps {
 export const EditDialog = ({
   open,
   onOpenChange,
-  selectedTreatment,
   onSubmit,
   loading = false,
   isdisabled = false,
@@ -108,7 +106,6 @@ export const EditDialog = ({
             id="name"
             name="name"
             value={formValues.name}
-            defaultValue={selectedTreatment?.name}
             onChange={onInputChange}
             required
           />
@@ -120,7 +117,6 @@ export const EditDialog = ({
             name="price"
             value={formValues.price}
             type="text"
-            defaultValue={selectedTreatment?.price}
             onChange={onInputChange}
             required
           />

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useAdminProfileStore } from "@/store/useAdminProfileStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { AdminDialog } from "../dialog";
+import { useSyncFormValues } from "@/hooks/use-sync-form-values";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { SquarePen } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const Contacts = () => {
+  const [isDisabled, setisDisabled] = useState<boolean>(true);
   const [formValues, setFormValues] = useState({
     facebook: "",
     phone_number: "",
@@ -27,15 +29,24 @@ const Contacts = () => {
     fetchContacts();
   }, [fetchContacts]);
 
+  useSyncFormValues(contactsInfo, setFormValues);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     const key = name;
+    const newValues = { ...formValues, [key]: value };
 
-    setFormValues((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    setFormValues(newValues);
+
+    if (
+      newValues.facebook !== contactsInfo?.facebook ||
+      newValues.phone_number !== contactsInfo?.phone_number ||
+      newValues.province !== contactsInfo?.province ||
+      newValues.city !== contactsInfo?.city ||
+      newValues.barangay !== contactsInfo.barangay
+    ) {
+      setisDisabled(false);
+    }
   };
 
   const handleOnSubmit = async (e: React.FormEvent) => {
@@ -49,6 +60,8 @@ const Contacts = () => {
     } catch (error) {
       console.log("Error: ", error);
     }
+
+    setisDisabled(true);
   };
   return (
     <>
@@ -61,6 +74,7 @@ const Contacts = () => {
             description="Update the contacts details below."
             onSubmit={handleOnSubmit}
             loading={isLoading}
+            isdisabled={isDisabled}
             closeRef={closeRef}
             trigger={
               <Button variant="outline" className="cursor-pointer" size={"sm"}>
@@ -76,7 +90,6 @@ const Contacts = () => {
                   name="facebook"
                   type="text"
                   value={formValues.facebook}
-                  // defaultValue={selectedTreatment?.name}
                   onChange={handleChange}
                   required
                 />
@@ -88,7 +101,6 @@ const Contacts = () => {
                   name="phone_number"
                   type="text"
                   value={formValues.phone_number}
-                  // defaultValue={selectedTreatment?.price}
                   onChange={handleChange}
                   required
                 />
@@ -100,7 +112,6 @@ const Contacts = () => {
                   name="province"
                   type="text"
                   value={formValues.province}
-                  // defaultValue={selectedTreatment?.price}
                   onChange={handleChange}
                   required
                 />
@@ -112,7 +123,6 @@ const Contacts = () => {
                   name="city"
                   type="text"
                   value={formValues.city}
-                  // defaultValue={selectedTreatment?.price}
                   onChange={handleChange}
                   required
                 />
@@ -124,7 +134,6 @@ const Contacts = () => {
                   name="barangay"
                   type="text"
                   value={formValues.barangay}
-                  // defaultValue={selectedTreatment?.price}
                   onChange={handleChange}
                   required
                 />
