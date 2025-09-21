@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useAdminProfileStore } from "@/store/useAdminProfileStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { AdminDialog } from "../dialog";
+import { useSyncFormValues } from "@/hooks/use-sync-form-values";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ const Contacts = () => {
   useEffect(() => {
     fetchContacts();
   }, [fetchContacts]);
+
+  useSyncFormValues(contactsInfo, setFormValues);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -76,7 +79,6 @@ const Contacts = () => {
                   name="facebook"
                   type="text"
                   value={formValues.facebook}
-                  // defaultValue={selectedTreatment?.name}
                   onChange={handleChange}
                   required
                 />
